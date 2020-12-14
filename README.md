@@ -16,7 +16,7 @@ addpath('<download-path>/NuLO');
 
 #### Running Example
 ```c
-addpath("<download-path>/NuLO
+addpath("<download-path>/NuLO)
 Example_using_class
 ```
 
@@ -39,7 +39,6 @@ Cite this toolbox as:
 
 ## File Listing
 ```C
-MATHEMATICAL ROUTINES
 simulation.m              - Class definning a simulation of N particles interacting through Coherent Scattering with a single cavity field mode 
 particle.m                - Class definning a levitated nanoparticle
 optical_cavity.m          - Class definning an optical cavity
@@ -48,7 +47,4 @@ lyapunov_ode.m            - Numerical Lyapunov ODE for time evolution of the cov
 logarithmic_negativity2.m - Calculation of the logarithmic negativity for a bipartite system
 von_Neumann_Entropy2.m    - Calculation of the von Neumann entropy for a bipartite system
 von_Neumann_Entropy1.m    - Calculation of the von Neumann entropy for a single mode
-
-FOLDERS
-
 ```
