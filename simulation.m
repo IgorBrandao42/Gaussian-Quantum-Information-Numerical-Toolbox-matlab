@@ -1,30 +1,51 @@
-classdef simulation < handle                               % class definning a simulation of N_particles particles interacting through Coherent Scattering with a single cavity field mode
+classdef simulation < handle                               % Class simulating an experiment with N nanoparticles linearly interacting with a single optical cavity field
   properties                                               
     N_particles                                            % Number of particles
     Size_matrices                                          % Size of covariance, diffusion and drift matrices
-    particles                                              % Array with particles
-    cavity                                                 % Optical cavity
-    A                                                      % Diffusion matrix
-    D                                                      % Drift Matrix
-    V_0                                                    % Initial CM
-    stable                                                 % Boolean if the system is stable or not
+    particles                                              % Array with particles (external class)
+    cavity                                                 % Optical cavity       (external class)
+    A                                                      % Drift matrix
+    D                                                      % Diffusion Matrix
+    V_0                                                    % Initial Covariance Matrix
+    stable                                                 % Boolean telling if the system is stable or not
     
-    mode_colors = [[0, 0, 0] ; [0, 0, 1]; [1, 0, 0]; [0, 0.5, 0]; [0.75, 0, 0.75]; [0.75, 0.75, 0]; [0.6350, 0.0780, 0.1840]];
+    mode_colors = [[0, 0, 0] ; [0, 0, 1]; [1, 0, 0]; [0, 0.5, 0]; [0.75, 0, 0.75]; [0.75, 0.75, 0]; [0.6350, 0.0780, 0.1840]]; % Array with colors to be consistently used throughout the plots
     
     t                                                      % Array with timestamps
     N_time                                                 % Length of time array
     Quadratures                                            % Semi classical time-evolved quadraures from Monte Carlos Langevin simulation
     V_cell                                                 % Cell with covariance matrix for each time
-    V_ss                                                   % Steady-state CM calculated directly from Lyapunov
+    V_ss                                                   % Steady-state Covariance Matrix calculated directly from Lyapunov equation
     J_particles                                            % Heat flux between every particle                        (expectation value)
     J_cavity                                               % Heat Flux between each  particle and the cavity         (expectation value)
-    J_env                                                  % Heat Flux between each nanoparticle and the environment (expectation value)
+    J_env                                                  % Heat Flux between each nanoparticle and the environment (expectation value, only valid when kappa > omega(j) )
     Log_Neg                                                % Logarithmic Negativity for each bipartition 
-    Entropies                                              % von Neumann Entropy for each bipartition (see subclasses for single mode Entropy)
+    Entropies                                              % von Neumann Entropy for each bipartition (see 'particle' class for single mode Entropy)
   end
   
   methods
+    % TO DO: Generalize to more possible initial gaussian quantum states -> different inital conditions
     function obj = simulation(omega, g, gamma, T_init, T_environment, Delta, kappa)
+      % Class simulating an experiment with N nanoparticles interacting with an optical cavity field.
+      % The interaction is considered to be linear in the modes' positions quadratures
+      % The cavity field is assumed to start in the vacuum state and the particles in a thermal state
+      %
+      % PARAMETERS:
+      %   omega         - Array with Natural frequencies  of each nanoparticle
+      %   g             - Array with Coupling strength   for each nanoparticle's interaction with the cavity field
+      %   gamma         - Array with Mechanical damping  for each nanoparticle
+      %   T_init        - Array with Initial temperature for each particle
+      %   T_environment - Array with Temperature for each heat bath
+      %   Delta         - Natural frequency of the optical mode (in the context of Coherent Scattering, this is the cavity-tweezer detunning)
+      %   kappa         - Cavity linewidth
+      %
+      % The number of particles is inferred from the size of the input parameters (they must all be the same!)
+      %
+      % Calculates:
+      % 'obj.A'      - the diffusion matrix of the system
+      % 'obj.D'      - the drift matrix of the system
+      % 'obj.V_0'    - the initial covariance matrix
+      % 'obj.stable' - boolean telling if the system is stable or not
       
       number_parameters = [length(omega), length(g), length(gamma), length(T_init), length(T_environment)];
       if ~all( number_parameters == number_parameters(1))
@@ -69,14 +90,25 @@ classdef simulation < handle                               % class definning a s
       
       lambda = eig(obj.A);                                 % Calculate the eigenvalues of the diffusion matrix
       obj.stable = ~any( real(lambda) > 0 );               % Check if there is any with positive real part (unstability)
-      if ~obj.stable                                       % Warn the user about the stability
-        fprintf("The system is unstable! Matrix A has eigenvalues with positive real part !!\n\n");
-      else
-        fprintf("The system is stable!\n\n");
-      end
+%       if ~obj.stable                                       % Warn the user about the stability
+%         fprintf("The system is unstable! Matrix A has eigenvalues with positive real part !!\n\n");
+%       else
+%         fprintf("The system is stable!\n\n");
+%       end
     end
     
     function run(obj, tspan, varargin)
+      % Run every calculation on the simulation for the time stamps as input.
+      % If additional parameters are passed, then it will only calculate what was specified.
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      %   tspan - Array with time stamps when the calculations should be done
+      %   varargin (optional) - strings with the name of specific calculations that should be done
+      %
+      % Optional parameters are recommended to save computation time ! They are self-explanatory:
+      % "occupation_number", "heat_flux", "entanglement", "entropy", "steady_state", "langevin", "fidelity_test"
+      
       obj.t = tspan;                                       % Store the information about the time interval for the simulation 
       obj.N_time = length(tspan);                          % and its length on the simulation object
       
@@ -104,7 +136,14 @@ classdef simulation < handle                               % class definning a s
     end
     
     function decide(obj, what_to_calculate)
-      % Always perform lyapunov, without it the rest can not be calculated!
+      % If additional parameters were passed to function 'run', this function decides what the user asked for
+      % It always perform 'lyapunov' method, without it the rest can not be calculated!
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      % 
+      % This is an internal method and, in principle, does not need to be called by the user. Why are you reading this?!
+      
       obj.lyapunov();                                    % Calculate the CM for each timestamp (perform time integration of the Lyapunov equation)
       
       if any(strcmp(what_to_calculate, "occupation_number"))
@@ -127,10 +166,6 @@ classdef simulation < handle                               % class definning a s
         obj.steady_state();                              % Calculate steady-state CM and check if simulation achieved it
       end
       
-      if any(strcmp(what_to_calculate, "Joao_Kleber"))
-        obj.fidelity_test();                             % Calcualte the approximated temperature thorugh a Fidelity test with a thermal state
-      end
-      
       if any(strcmp(what_to_calculate, "langevin"))
         obj.langevin();                                  % Calculate the semi-classical quadratures for each timestamp (high-temperature limit)
       end
@@ -143,6 +178,21 @@ classdef simulation < handle                               % class definning a s
     
     % TO DO: Optimize use of classes
     function langevin(obj)
+      % Solve the semi-classical Langevin equation for the expectation value of the quadrature operators
+      % A Monte Carlos simulation to numericaly integrate the Langevin equations
+      % The differential stochastic equations are solved through a Euler-Maruyama method
+      %
+      % The initial conditions for the particles follows the thermal state probability density in phase space
+      % The initial conditions for the cavity    follows the vacuum  state probability density in phase space
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      %
+      % Calculates 'obj.Quadratures', a matrix with the expectation values of the quadratures
+      % obj.Quadratures(i,j) is the i-th quadrature expectation value at the j-th time
+      %
+      % Although correct, this method is poorly writen, optimizations to come!
+      
       dt = obj.t(2) - obj.t(1);                            % Time step
       sq_dt = sqrt(dt);                                    % Square root of time step (for Wiener proccess in the stochastic integration)
       
@@ -178,7 +228,7 @@ classdef simulation < handle                               % class definning a s
     % rng(1)                                               % Default random number generator
       N_ensemble = 2e+2;                                   % Number of Monte Carlos iterations
     % milestone = 10; milestone_update = 10;               % Auxiliar variables to warn user that hthe computer didn't froze !
-      disp("Langevin simulation progess:")                 % Warn user that heavy calculation started
+    % disp("Langevin simulation started...:")                 % Warn user that heavy calculation started
             
       for i=1:N_ensemble                                   % Loop on the random initial positions (% Monte Carlos simulation using Euler-Maruyama method in each iteration)
         
@@ -204,13 +254,22 @@ classdef simulation < handle                               % class definning a s
       
       obj.Quadratures = obj.Quadratures/N_ensemble;        % Divide the ensemble sum to obtain the average quadratures at each time
       
-      fprintf("\nLangevin simulation ended\n")             % Warn user that heavy calculation started
+    % fprintf("Langevin simulation ended\n")             % Warn user that heavy calculation started
       
     end
 
     function lyapunov(obj)
+      % Solve the lyapunov equation for the time evolved covariance matrix of the full system
+      % 
+      % Uses ode45 to numerically integrate, a fourth order Runge-Kutta method
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      %
+      % Calculates 'obj.V_cell', a cell with the time evolved covariance matrix
+      % obj.V_cell{j} is the covariance matrix at the j-th time
       
-      disp("Lyapunov simulation started...")               % Warn the user that heavy calculations started (their computer did not freeze!)
+    % disp("Lyapunov simulation started...")               % Warn the user that heavy calculations started (their computer did not freeze!)
       
       V_0_vector = reshape(obj.V_0, [obj.Size_matrices^2, 1]); % Reshape the initial condition into a vector (expected input for ode45)
       
@@ -225,10 +284,17 @@ classdef simulation < handle                               % class definning a s
         obj.V_cell{i} = V_current;                             % Store it in a cell
       end
       
-      fprintf("Lyapunov simulation finished!\n\n")         % Warn user the heavy calculations ended
+   %  fprintf("Lyapunov simulation finished!\n\n")         % Warn user the heavy calculations ended
     end
     
     function occupation_number(obj)
+      % Calculates the occupation number for each mode
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      %
+      % Calculates the property 'obj.particles{i}.nbar(j)', a array with time evolved occupation number
+      % for the i-th mode at the j-th time
       
       nbar = zeros([obj.N_particles+1, obj.N_time]);       % Initialize variable that will hold the occupation number for the cavity and particles
       
@@ -250,6 +316,20 @@ classdef simulation < handle                               % class definning a s
     end
     
     function heat_fluxes(obj)
+      % Calculate all the average heat fluxes present in the system, following arxiv:... (noy yet anounced)
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      %
+      % Calculates the matrices 'obj.J_cavity', 'J_env' and 'J_particles':a cell with the time evolved covariance matrix
+      % obj.V_cell{j} is the covariance matrix at the j-th time
+      %
+      % obj.J_cavity(i,j)     - Heat Flux from the cavity to the i-th particle at the j-th time
+      % 
+      % obj.J_env(i,j)        - Heat Flux from the environment to the i-th particle at the j-th time 
+      % 
+      % obj.J_particles(n,i,j)- Heat Flux between from the n-th particle to the i-th particle at the j-th time
+      
       kappa = obj.cavity.kappa;
       Delta = obj.cavity.Delta;
       
@@ -285,28 +365,54 @@ classdef simulation < handle                               % class definning a s
     end
     
     function entanglement(obj)
+      % Calculates the logarithmic negativity for each bipartition
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      %
+      % Calculates the property 'obj.Log_Neg', a array with time evolved logarithmic negativity
+      % obj.Log_Neg(n, i, j) - Logarithmic Negativity between from the n-th particle and the i-th particle at the j-th time
+      
       N_modes = obj.N_particles + 1;                       % Useful constant
       
       obj.Log_Neg = zeros([N_modes, N_modes, obj.N_time]); % Variable to store the Logarithmic Negativities
       
       for i=1:N_modes                                      % Loop through each mode
         for j=i+1:N_modes                                  % Loop through each non-repeated mode and skip diagonal
-          obj.Log_Neg(i, j, :) = logarithmic_negativity2(obj.V_cell, i-1, j-1); % Logarithmic Negativity between modes i-1 and j-1
-        end  
+          
+          V = bipartite_CM(obj.V_cell, i-1, j-1);          % From the full CM, get the sub matrix for the current bipartition
+          
+          obj.Log_Neg(i, j, :) = logarithmic_negativity2(V); % Logarithmic Negativity between modes i-1 and j-1
+        end
       end                                                  % Mode 0 describes the cavity field and mode j>0 describe the j-th particle
       
     end
     
     function entropy(obj)
+      % Calculates the von Neumann entropies for each bipartition and for each mode
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      %
+      % Calculates the arrays:
+      % obj.Entropies(n, i, j)      - Entropy in the bipartition with the n-th and i-th modes at the j-th time
+      % obj.cavity.Entropy(j)       - Entropy for the cavity at the j-th time
+      % obj.particles{n}.Entropy(j) - Entropy for the n-th particle at the j-th time
+      
       N_modes = obj.N_particles + 1;                       % Useful constant
       
       obj.Entropies = zeros([N_modes, N_modes, obj.N_time]); % Variable to store the von Neumann Entropies
       Entropy_single_mode =    zeros([N_modes, obj.N_time]); % Variable to store the von Neumann Entropies
       
       for i=1:N_modes                                      % Loop through each mode
-        Entropy_single_mode(i, :) = von_Neumann_Entropy1(obj.V_cell, i-1); % von Neumann Entropy for i-th mode
+        V = single_mode_CM(obj.V_cell, i-1);               % Get the CM for only the i-th mode
+        
+        Entropy_single_mode(i, :) = von_Neumann_Entropy1(V); % von Neumann Entropy for i-th mode
+        
         for j=i+1:N_modes                                  % Loop through each non-repeated mode
-          obj.Entropies(i, j, :) =  von_Neumann_Entropy2(obj.V_cell, i-1, j-1); % von Neumann Entropy between modes i-1 and j-1
+          V = bipartite_CM(obj.V_cell, i-1, j-1);          % From the full CM, get the sub matrix for the current bipartition
+          
+          obj.Entropies(i, j, :) = von_Neumann_Entropy2(V);% von Neumann Entropy between modes i-1 and j-1
         end
       end                                                  % Mode 0 describes the cavity field and mode j>0 describe the j-th particle
       
@@ -318,6 +424,14 @@ classdef simulation < handle                               % class definning a s
     end
     
     function steady_state(obj)
+      % Calculates the stedy state covariance matrix for the steady state
+      % and checks if the final CM calculated is close enough to it (steady state achieved)
+      %
+      % PARAMETERS:
+      %   obj   - class instance
+      %
+      % Calculates the matrix obj.V_ss with the steady state covariance matrix
+      
       obj.V_ss = lyap(obj.A, obj.D);                       % Calculate steady-state CM
       
       V_ss_numerical = obj.V_cell{end};                    % Find the last CM found numerically
@@ -332,13 +446,27 @@ classdef simulation < handle                               % class definning a s
       
     end
     
+    % TO DO: Move from checking entanglement to checking the mutual information
     function fidelity_test(obj)
+      % Calculates the best thermal state that approximates the covariance matrix of each particle at each time
+      % Thermal state covariance matrices are compared to the single mode CM of each particle at each time
+      % 
+      % PARAMETERS:
+      %   obj   - class instance
+      %
+      % Calculates:
+      % obj.particles{i}.T_approx(j)     - Approximated temperature that approximates the covariance matrix of the i-th particle at the j-th time
+      % obj.particles{i}.F_approx(j)     - Fidelity between corresponding thermal state for the i-th particle at the j-th time
+      % obj.particles{i}.n_approx(j)     - Corresponding occupation number  for the i-th particle at the j-th time
+      % obj.particles{i}.is_entangled(j) - Boolean telling if the for the i-th particle is entangled at the j-th time
+      % The last varaible is DEPRECATED and will be removed
+      
       if isempty(obj.Log_Neg)
         disp("No previous logarithmic negativity calculated, verifying if any nanoparticle became entangled...")
         obj.entanglement();
       end
       
-      for j=1:obj.N_particles                              % Loop through every particle
+      for j=1:obj.N_particles                                 % Loop through every particle
         obj.particles{j}.T_approx =     zeros(obj.N_time, 1); % Initialize everything to spurios values
         obj.particles{j}.F_approx =     zeros(obj.N_time, 1); % only populate it if the particle is disentangled
         obj.particles{j}.n_approx =     zeros(obj.N_time, 1);
@@ -458,28 +586,25 @@ classdef simulation < handle                               % class definning a s
         return
       end
       
-      figure('Name', "Single mode von Neumann Entropy"); % Open a figure to contain the subplots
+      figure('Name', "Single mode von Neumann Entropy");   % Open a figure to contain the subplots
       hold on
       
       title_begining = "Particle " + string(1:obj.N_particles); % Create the begining of the title for each mode
       
       plot(obj.t, obj.cavity.Entropy, 'Linewidth', 1.5, 'DisplayName', "Cavity", 'Color', obj.mode_colors(1,:))
-      for k=1:obj.N_particles                                       % Calculate and plot entanglement and entropy
+      for k=1:obj.N_particles                              % Calculate and plot entanglement and entropy
         plot(obj.t, obj.particles{k}.Entropy, 'Linewidth', 1.5, 'DisplayName', title_begining(k), 'Color', obj.mode_colors(k+1,:))
       end
       
       ylabel("Entropy");
-      title("Single mode von Neumann Entropy");                         % Title for current subplot
+      title("Single mode von Neumann Entropy");             % Title for current subplot
       
-      xlim([obj.t(1), obj.t(end)]);                             % Adjust x-axis and its label
-    % xticks((0:N_oscillations/5:N_oscillations)/OMEGA);
-    % x_label = string(0:N_oscillations/5:N_oscillations);
-    % xticklabels(x_label)
+      xlim([obj.t(1), obj.t(end)]);                         % Adjust x-axis and its label
       xlabel('t [s]')
       
-      legend('Location', 'best')                        % Show the legend
-      set(gca, 'Fontsize', 18)                          % Increase the font for readability
-      set(gca, 'TickDir', 'out')                        % Set thicks outward
+      legend('Location', 'best')                           % Show the legend
+      set(gca, 'Fontsize', 18)                             % Increase the font for readability
+      set(gca, 'TickDir', 'out')                           % Set thicks outward
     end
     
     function plot_occupation_number(obj)
@@ -665,17 +790,5 @@ classdef simulation < handle                               % class definning a s
 end % end class
 
 
-% n = floor( log(abs(max(obj.t)))/log(10) )
-%
-% if n<0
-%   a = -3*(1:5);
-%   scale = ["ms", "\mu s", "ns", "ps", "fs"];
-%   b = 3*floor(n/3);
-%   idx = find(a==b);
-%   if ~isempty(idx)
-%     scale = scale(idx);
-%   else
-%     scale = [];
-%   end
-% end
+
 

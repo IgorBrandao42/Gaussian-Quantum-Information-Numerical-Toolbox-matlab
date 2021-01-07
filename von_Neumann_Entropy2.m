@@ -1,8 +1,8 @@
-function result = von_Neumann_Entropy2(V_cell, j, k)
+function result = von_Neumann_Entropy2(V_cell)
 % Calculation of the von Neumann entropy for a bipartite system
 %
 % PARAMETERS:
-%  t - times at which the von Neumann entropy will be evaluated
+%   V_cell - cell where each entry is a bipartite covariance matrix
 %
 % MATHEMATICAL DESCRIPTION
 %  Calculation of the von Neumann entropy for a bipartite system
@@ -28,39 +28,26 @@ function result = von_Neumann_Entropy2(V_cell, j, k)
 %
 % where \Delta = det(A) + det(B) + 2det(C)
 
+Neuman_entropy = zeros([length(V_cell), 1]); % Allocate space in memory to save the value of the entropy at each time
 
-% Allocate space in memory to save the value of the entropy at each time
-Neuman_entropy = zeros([length(V_cell), 1]);
-
-% Change from my label to the index
-j = 2*j+1;
-k = 2*k+1;
-
-% Parallel loop to save time
-parfor i=1:length(V_cell)
+parfor i=1:length(V_cell)                % Parallel loop through every CM in the cell
   
-  V = V_cell{i}; % Take the full Covariance matrix
+  V = V_cell{i};                         % Take the full Covariance matrix
   
-  A = V(j:j+1, j:j+1); % Only look for the submatrix corresponding to the desired subsystem
-  B = V(k:k+1, k:k+1);
-  C = V(j:j+1, k:k+1);
-  V = [A, C; C.', B];
+  A = V(1:2, 1:2);                       % Make use of its submatrices
+  B = V(3:4, 3:4);
+  C = V(1:2, 3:4);
   
-  % Auxiliar variable
-  Delta = det(A) + det(B) + 2.0*det(C);
+  Delta = det(A) + det(B) + 2.0*det(C);  % Auxiliar variable
   
-  % Smallest of the symplectic eigenvalues of the partially transposed covariance matrix
-  n_minus = sqrt( Delta/2.0 - sqrt( Delta^2 - 4.0*det(V) )/2.0 );
+  n_minus = sqrt( Delta/2.0 - sqrt( Delta^2 - 4.0*det(V) )/2.0 ); % Smallest of the symplectic eigenvalues of the partially transposed covariance matrix
   
-  % Biggest of the symplectic eigenvalues of the partially transposed covariance matrix
-  n_plus  = sqrt( Delta/2.0 + sqrt( Delta^2 - 4.0*det(V) )/2.0 );
+  n_plus  = sqrt( Delta/2.0 + sqrt( Delta^2 - 4.0*det(V) )/2.0 ); % Biggest of the symplectic eigenvalues of the partially transposed covariance matrix
   
-  % Calculate the entropy at the current time
-  Neuman_entropy(i) = func(n_plus) + func(n_minus);
+  Neuman_entropy(i) = func(n_plus) + func(n_minus); % Calculate the entropy at the current time
   
 end
 
-% Return the entropies
 result = Neuman_entropy;
 
 end

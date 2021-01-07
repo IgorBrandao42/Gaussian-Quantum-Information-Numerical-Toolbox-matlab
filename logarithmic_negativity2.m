@@ -1,8 +1,8 @@
-function result = logarithmic_negativity2(V_cell, j, k)
+function result = logarithmic_negativity2(V_cell)
 % Calculation of the logarithmic negativity for a bipartite system
 %
 % PARAMETERS:
-%       t - times at which the logarithmic negativity will be evaluated
+%    V_cell - cell where each entry is a bipartite covariance matrix
 %
 % MATHEMATICAL DESCRIPTION
 % The covariance matrix for a bipartite subsystem is of the form:
@@ -12,7 +12,6 @@ function result = logarithmic_negativity2(V_cell, j, k)
 %      |  C^T    B  |
 %
 % where A, B, C are 2 by 2 matrices and C^T is the transpose of matrix C.
-% See covariance_matrix2.m for more deatils on the calculation.
 %
 % For a bipartite system, the logarithmic negativity (E_{N}) is a function of the
 % smallest of the symplectic eigenvalues of the partially transposed covariance matrix (\tilde{\nu}_{minus}):
@@ -22,41 +21,29 @@ function result = logarithmic_negativity2(V_cell, j, k)
 % where \tilde{\nu}_{minus} = \sqrt( \sigma/2.0 - \sqrt( \sigma^2 - 4.0*\det(V) )/2.0 ) ,
 % and   \sigma = \det(A) + \det(B) - 2\det(C)
 
-% Allocate space in memory to save the value of the logarithmic entropy at each time
-Neg = zeros([length(V_cell),1]);
+Neg = zeros([length(V_cell),1]);         % Allocate space in memory to save the value of the logarithmic entropy for each CM
 
-% Change from my label to the index
-j = 2*j+1;
-k = 2*k+1;
-
-% Parallel loop to save time
-parfor i=1:length(V_cell)
+parfor i=1:length(V_cell)                % Parallel loop through every CM in the cell
   
-  V = V_cell{i}; % Take the full Covariance matrix
+  V = V_cell{i};                         % Take the full Covariance matrix
   
-  A = V(j:j+1, j:j+1); % Only look for the submatrix corresponding to the desired subsystem
-  B = V(k:k+1, k:k+1);
-  C = V(j:j+1, k:k+1);
-  V = [A, C; C.', B];
+  A = V(1:2, 1:2);                       % Make use of its submatrices
+  B = V(3:4, 3:4);
+  C = V(1:2, 3:4);
   
-  % Auxiliar variable
-  sigma = det(A) + det(B) - 2.0*det(C);
+  sigma = det(A) + det(B) - 2.0*det(C);  % Auxiliar variable
   
-  % Square of the smallest of the symplectic eigenvalues of the partially transposed covariance matrix
-  ni = sigma/2.0 - sqrt( sigma^2 - 4.0*det(V) )/2.0 ;
+  ni = sigma/2.0 - sqrt( sigma^2 - 4.0*det(V) )/2.0 ; % Square of the smallest of the symplectic eigenvalues of the partially transposed covariance matrix
   
-  % Manually perform a maximum to save computational time (calculation of a sqrt can take too much time and deal with residual numeric imaginary parts)
-  if ni < 0.0
+  if ni < 0.0                            % Manually perform a maximum to save computational time (calculation of a sqrt can take too much time and deal with residual numeric imaginary parts)
     Neg_at_t = 0.0;
   else
-    % Smallest of the symplectic eigenvalues of the partially transposed covariance matrix
-    ni = sqrt( real(ni) );                   % I am using the REAL PART, I have to make sure that this is fine instead of : ni = sqrt(ni);
+    ni = sqrt( real(ni) );               % Smallest of the symplectic eigenvalues of the partially transposed covariance matrix
     
-    % Calculate the logarithmic negativity at each time
-    Neg_at_t = max([0, -log(ni)]);
+    Neg_at_t = max([0, -log(ni)]);       % Calculate the logarithmic negativity at each time
   end
   
-  Neg(i) = Neg_at_t;
+  Neg(i) = Neg_at_t;                     % Store the calculated logarithmic negativity properly
   
 end
 

@@ -1,7 +1,7 @@
 classdef particle < handle                                 % class definning a levitated nanoparticle
   properties
     omega                                                  % Natural frequency               [Hz] 
-    g                                                      % Coupling strength               [Hz]
+    g                                                      % Coupling strength with cavity   [Hz]
     gamma                                                  % Damping from the environment    [Hz]
     T_init                                                 % Initial temperature             [K]
     nbar_init                                              % Initial particle    occupation number 
@@ -18,6 +18,19 @@ classdef particle < handle                                 % class definning a l
   
   methods
     function obj = particle(omega_0, g_0, gamma_0, T_init_0, T_environment_0)
+      % Class simulating a nanoparticle interacting with an optical cavity field
+      % The interaction is considered to be linear in the modes' positions quadratures
+      % The particles is initially in a thermal state
+      %
+      % PARAMETERS:
+      %   omega_0        - Natural frequencies
+      %   g_0            - Coupling strength for the interaction with the cavity field
+      %   gamma_0        - Mechanical damping 
+      %   T_init_0       - Initial temperature
+      %   T_environment_0 - Temperature for each heat bath
+      %
+      % Calculates the initial occupation number and occupation number of the associated heat bath
+      
       obj.omega         = omega_0;
       obj.g             = g_0;
       obj.gamma         = gamma_0;
@@ -33,6 +46,13 @@ classdef particle < handle                                 % class definning a l
     end
     
     function approx_temperature(obj, V_0, k)
+      % Internal function for 'simulation.fidelity_test'
+      %
+      % PARAMETERS:
+      %   obj - class instance
+      %   V_0 - single mode covariance matrix for this particle
+      %   k   - index where to store approximated temperature
+      
       if obj.is_entangled(k)                               % We can only approximate to a single moe thermal state, if it is not entangled!
         return
       end
@@ -56,6 +76,14 @@ classdef particle < handle                                 % class definning a l
     end
     
     function F = fidelity_given_temperature(obj, T, V_0)
+      % Internal function for 'obj.approx_temperature'
+      % 
+      % Calculates the fidelity betwee the covariance matrix of a thermal state at temperature T
+      % and the covariance matrix V_0
+      % PARAMETERS:
+      %   obj - class instance
+      %   T   - temperature for thermal state
+      %   V_0 - single mode covariance matrix to be compared
       
       k_B = 1.381e-23;                                 % J/K
       hbar = 1.055e-34;                                % J*s
