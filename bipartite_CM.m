@@ -10,7 +10,7 @@ function V = bipartite_CM(V_cell, j, k)
 %   j      - index with the information about one of the modes in the bipartition
 %   k      - index with the information about one of the modes in the bipartition
 
-V = cell( length(V_cell) );           % Cell of the same size, but each entry is a bipartite CM
+V = cell( length(V_cell), 1 );           % Cell of the same size, but each entry is a bipartite CM
 
 % Change from my label to the index
 j = 2*j+1;

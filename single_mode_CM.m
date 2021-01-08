@@ -9,7 +9,7 @@ function V = single_mode_CM(V_cell, k)
 %   k      - index with the information about which mode is to be studied
 
 
-V = cell( length(V_cell) );              % Cell of the same size, but each entry is a single mode CM
+V = cell( length(V_cell), 1 );              % Cell of the same size, but each entry is a single mode CM
 
 k = 2*k+1;                               % Change from my label to the index
 
