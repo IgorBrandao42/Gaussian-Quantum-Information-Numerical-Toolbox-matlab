@@ -62,7 +62,7 @@ The user can choose to calculate only what suits them, by passing extra paramete
 In the file **Example.m** there is a basic example of the capabilities of this Toolbox
 
 ## Author
-[Igor Brandão](mailto:igorbrandao@aluno.puc-rio.br) - Master's student in [Thiago Guerreiro](mailto:barbosa@puc-rio.br)'s Lab at Pontifícia Universidade Católica do Rio de Janeiro, Brazil
+[Igor Brandão](mailto:igorbrandao@aluno.puc-rio.br) - Master's student in [Thiago Guerreiro](mailto:barbosa@puc-rio.br)'s Lab at Pontifical Catholic University of Rio de Janeiro, Brazil
 
 ## Mathematical Formalism
 For the optomechanics time evolution, this codes was originally created for and uses the same formalism as:
