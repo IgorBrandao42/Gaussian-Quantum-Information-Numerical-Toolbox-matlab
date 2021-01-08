@@ -21,6 +21,8 @@ classdef simulation < handle                               % Class simulating an
     J_env                                                  % Heat Flux between each nanoparticle and the environment (expectation value, only valid when kappa > omega(j) )
     Log_Neg                                                % Logarithmic Negativity for each bipartition 
     Entropies                                              % von Neumann Entropy for each bipartition (see 'particle' class for single mode Entropy)
+    Entropy_system                                         % von Neumann Entropy for the whole system
+    I_mutual                                               % Mutual Information  for the whole system
   end
   
   methods
@@ -130,7 +132,9 @@ classdef simulation < handle                               % Class simulating an
         
         obj.steady_state();                                % Calculate steady-state CM and check if simulation achieved it
         
-        obj.fidelity_test();                               % PARA PARA PARA
+        obj.fidelity_test();                               % Approximate the effective temperature for each particle at each time
+        
+        obj.mutual_information();                          % Calculate the mutual information for the whole system
       end
       
     end
@@ -172,6 +176,10 @@ classdef simulation < handle                               % Class simulating an
       
       if any(strcmp(what_to_calculate, "fidelity_test"))
         obj.fidelity_test();                             % Calculate approx. temperature for each particles at each timestamp through the Fidelity
+      end
+      
+      if any(strcmp(what_to_calculate, "mutual_information"))
+        obj.mutual_information();                        % Calculate the mutual information for the whole system at each timestamp
       end
       
     end
@@ -334,7 +342,7 @@ classdef simulation < handle                               % Class simulating an
       Delta = obj.cavity.Delta;
       
       Omega = Delta/( (kappa/2)^2 + Delta^2);
-      Gamma = kappa*Omega/( (kappa/2)^2 + Delta^2);
+      Gamma = Omega^2 * kappa/Delta;
       
       obj.J_particles = zeros([obj.N_particles, obj.N_particles, obj.N_time]); % Initialize variable that will hold the average heat flux between every particle
       obj.J_cavity    = zeros([obj.N_particles, obj.N_time]);                  % Initialize variable that will hold the average heat flux between each particle and the cavity
@@ -357,7 +365,7 @@ classdef simulation < handle                               % Class simulating an
             omega_j = obj.particles{j}.omega;
             g_j     = obj.particles{j}.g;
                                                            % Mean heat flux between n-th particle and j-th particle
-            obj.J_particles(n, j, i) = 2*omega_j*g_j*g_n*( Gamma*omega_n*V(2*n+2,2*j+2) - Omega*V(2*n+1,2*j+2) ); 
+            obj.J_particles(n, j, i) = -4*pi*omega_j*g_j*g_n*( Gamma*omega_n*V(2*n+2,2*j+2) - Omega*V(2*n+1,2*j+2) ); 
           end % end loop over time
         end % end loop over particle n
       end % end loop over particle j
@@ -407,12 +415,12 @@ classdef simulation < handle                               % Class simulating an
       for i=1:N_modes                                      % Loop through each mode
         V = single_mode_CM(obj.V_cell, i-1);               % Get the CM for only the i-th mode
         
-        Entropy_single_mode(i, :) = von_Neumann_Entropy1(V); % von Neumann Entropy for i-th mode
+        Entropy_single_mode(i, :) = von_Neumann_Entropy(V);% von Neumann Entropy for i-th mode
         
         for j=i+1:N_modes                                  % Loop through each non-repeated mode
           V = bipartite_CM(obj.V_cell, i-1, j-1);          % From the full CM, get the sub matrix for the current bipartition
           
-          obj.Entropies(i, j, :) = von_Neumann_Entropy2(V);% von Neumann Entropy between modes i-1 and j-1
+          obj.Entropies(i, j, :) = von_Neumann_Entropy(V); % von Neumann Entropy between modes i-1 and j-1
         end
       end                                                  % Mode 0 describes the cavity field and mode j>0 describe the j-th particle
       
@@ -420,6 +428,8 @@ classdef simulation < handle                               % Class simulating an
       for j=1:obj.N_particles
         obj.particles{j}.Entropy = Entropy_single_mode(j+1, :); % Store the each particle entropy accordingly
       end
+      
+      obj.Entropy_system = von_Neumann_Entropy(obj.V_cell).';% Calculate the entropy of the full system
       
     end
     
@@ -488,6 +498,21 @@ classdef simulation < handle                               % Class simulating an
           
         end % end of time loop
       end % end of particles loop
+      
+    end
+    
+    function mutual_information(obj)
+      if isempty(obj.particles{1}.Entropy) || isempty(obj.Entropies)
+        obj.entropy();                                     % If no entropy was previously calculated, calculate it!
+      end
+      
+      obj.I_mutual = obj.cavity.Entropy;                   % We start with the entropy of the cavity
+      
+      for j=1:obj.N_particles
+        obj.I_mutual = obj.I_mutual + obj.particles{j}.Entropy; % Then we sum with the entropy of each nanoparticle
+      end
+      
+      obj.I_mutual = obj.I_mutual - obj.Entropy_system;    % And finally subtract the entropy of the full system
       
     end
     
@@ -603,6 +628,50 @@ classdef simulation < handle                               % Class simulating an
       xlabel('t [s]')
       
       legend('Location', 'best')                           % Show the legend
+      set(gca, 'Fontsize', 18)                             % Increase the font for readability
+      set(gca, 'TickDir', 'out')                           % Set thicks outward
+    end
+    
+    function plot_system_entropy(obj)
+      if isempty(obj.Entropy_system)
+        disp("The entropy of the system was not calulated, please calculate it before plotting it!")
+        return
+      end
+      
+      figure('Name', "Complete system's von Neumann Entropy");      % Open a figure to contain the subplots
+      hold on
+      
+      title("Complete system's von Neumann Entropy");     % Title for the plot
+      
+      plot(obj.t, real(obj.Entropy_system), 'k', 'Linewidth', 1.5)
+      
+      ylabel("System Entropy");
+      
+      xlim([obj.t(1), obj.t(end)]);                        % Adjust x-axis and its label
+      xlabel('t [s]')
+      
+      set(gca, 'Fontsize', 18)                             % Increase the font for readability
+      set(gca, 'TickDir', 'out')                           % Set thicks outward
+    end
+    
+    function plot_mutual_information(obj)
+      if isempty(obj.I_mutual)
+        disp("The mutual information of the system was not calulated, please calculate it before plotting it!")
+        return
+      end
+      
+      figure('Name', "Mutual information of the system");      % Open a figure to contain the subplots
+      hold on
+      
+      title("Mutual information of the system");     % Title for the plot
+      
+      plot(obj.t, real(obj.I_mutual), 'k', 'Linewidth', 1.5)
+      
+      ylabel("Mutual information");
+      
+      xlim([obj.t(1), obj.t(end)]);                        % Adjust x-axis and its label
+      xlabel('t [s]')
+      
       set(gca, 'Fontsize', 18)                             % Increase the font for readability
       set(gca, 'TickDir', 'out')                           % Set thicks outward
     end
@@ -784,6 +853,10 @@ classdef simulation < handle                               % Class simulating an
       obj.plot_phase_space();
       
       obj.plot_fidelity_approx();
+      
+      obj.plot_system_entropy();
+      
+      obj.plot_mutual_information();
     end
     
   end % end methods
