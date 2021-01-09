@@ -5,7 +5,7 @@ This is a MATLAB Toolbox for numerical simulation of the time evolution of linea
 
 The simulated system consists of $N$ particles interacting with a single eletromagnetic field, considered to be an optical cavity field. The Hamiltonian that describes this system is
 
-$$\hat{H} = \hbar\Delta \hat{a}^\dagger\hat{a} + \sum_{j=1}^{N}  \hbar\omega_j \hat{b}_j^\dagger\hat{b}_j + \sum_{j=1}^{N}  \hbar g_j(\hat{a}^\dagger + \hat{a})(\hat{b}_j^\dagger + \hat{b}_j) \, ,$$
+![equation](https://latex.codecogs.com/gif.latex?%5Chat%7BH%7D%20%3D%20%5Chbar%5CDelta%20%5Chat%7Ba%7D%5E%5Cdagger%5Chat%7Ba%7D%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%5Comega_j%20%5Chat%7Bb%7D_j%5E%5Cdagger%5Chat%7Bb%7D_j%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%20g_j%28%5Chat%7Ba%7D%5E%5Cdagger%20&plus;%20%5Chat%7Ba%7D%29%28%5Chat%7Bb%7D_j%5E%5Cdagger%20&plus;%20%5Chat%7Bb%7D_j%29%20%5C%2C%20%2C)
 
 where $\hat{a}$ ($\hat{a}^\dagger$) is the annihilation (creation) operator for the cavity field with natural frequency $\Delta$; $\hat{b}$ ($\hat{b}^\dagger$) is the annihilation (creation) operator for the $j$-th particle each with natural frequency $\omega_j$, and $g_j$ is the coupling strength of the interaction.
 
