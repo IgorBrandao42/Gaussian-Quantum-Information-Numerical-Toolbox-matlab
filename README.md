@@ -3,11 +3,11 @@
 
 This is a MATLAB Toolbox for numerical simulation of the time evolution of linear quantum optomechanical systems in gaussian states following an open quantum dynamics.
 
-The simulated system consists of $N$ particles interacting with a single eletromagnetic field, considered to be an optical cavity field. The Hamiltonian that describes this system is
+The simulated system consists of N particles interacting with a single eletromagnetic field, considered to be an optical cavity field. The Hamiltonian that describes this system is
 
 ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7BH%7D%20%3D%20%5Chbar%5CDelta%20%5Chat%7Ba%7D%5E%5Cdagger%5Chat%7Ba%7D%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%5Comega_j%20%5Chat%7Bb%7D_j%5E%5Cdagger%5Chat%7Bb%7D_j%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%20g_j%28%5Chat%7Ba%7D%5E%5Cdagger%20&plus;%20%5Chat%7Ba%7D%29%28%5Chat%7Bb%7D_j%5E%5Cdagger%20&plus;%20%5Chat%7Bb%7D_j%29%20%5C%2C%20%2C)
 
-where $\hat{a}$ ($\hat{a}^\dagger$) is the annihilation (creation) operator for the cavity field with natural frequency $\Delta$; $\hat{b}$ ($\hat{b}^\dagger$) is the annihilation (creation) operator for the $j$-th particle each with natural frequency $\omega_j$, and $g_j$ is the coupling strength of the interaction.
+where ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D) (![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D%5E%5Cdagger)) is the annihilation (creation) operator for the cavity field with natural frequency $\Delta$; ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Bb%7D) (![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Bb%7D_j%5E%5Cdagger)) is the annihilation (creation) operator for the $j$-th particle each with natural frequency $\omega_j$, and $g_j$ is the coupling strength of the interaction.
 
 Initially, the particles are assumed to be each in a thermal state and the cavity field in a vacuum state. As this Hamiltonian preserves their gaussianity [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621), this toolbox focus on the time evolution of the expected values of the quadratures and the covariance matrix.
 
