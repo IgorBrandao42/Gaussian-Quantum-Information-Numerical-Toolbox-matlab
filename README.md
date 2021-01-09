@@ -68,6 +68,11 @@ The user can choose to calculate only what suits them, by passing extra paramete
 |   "heat_flux"        | Calculate the expectation value of every heat fluxes in the system|
 | "fidelity_test"      | Approximate each mode state by a thermal state through Fideliy, finding the effective temperature |
 
+```MATLAB
+% Run a specific calculation
+example.run(t, "occupation_number");
+```
+
 #### Running Example
 In the file **Example.m** there is a basic example of the capabilities of this Toolbox
 
@@ -86,7 +91,7 @@ For the study of Gaussian Quantum Information, this code was based on and uses t
 This code is made available under the Creative Commons Attribution - Non Commercial 4.0 License. For full details see LICENSE.md.
 
 Cite this toolbox as: 
-> Igor Brandão, "Gaussian Quantum Information Toolbox for Linear Optomechanics" [https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Toolbox-for-Linear-Optomechanics](https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Toolbox-for-Linear-Optomechanics). Retrived <*date you downloaded*>
+> Igor Brandão, "Gaussian Quantum Information Toolbox for Linear Optomechanics", [https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Toolbox-for-Linear-Optomechanics](https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Toolbox-for-Linear-Optomechanics). Retrived <*date you downloaded*>
 
 ## File Listing
 
