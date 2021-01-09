@@ -102,14 +102,14 @@ Cite this toolbox as:
 |      optical_cavity.m       |                   Class definning an optical cavity                                                   |
 |-----------------------------|-------------------------------------------------------------------------------------------------------|
 |  symplectic_eigenvalues.m   |            Calculates the sympletic eigenvalues of a covariance matrix                                |
-|   von_Neumann_Entropy.m     |  Calculates the von Neumann entropy     for a multipartite gaussian system from its covariance matrix |
-|  logarithmic_negativity2.m  |   Calculates the logarithmic negativity for a bipartite   gasussian system from its covariance matrix |
+|   von_Neumann_Entropy.m     |  Calculates the von Neumann entropy     for a multipartite gaussian state from its covariance matrix  |
+|  logarithmic_negativity2.m  |   Calculates the logarithmic negativity for a bipartite   gasussian state from its covariance matrix  |
 |         fidelity.m          |          Calculates the fidelity between the two arbitrary gaussian states                            |
 |-----------------------------|-------------------------------------------------------------------------------------------------------|
 |      single_mode_CM.m       |     Finds the covariance submatrix for a single mode from the full covariance matrix                  |
 |       bipartite_CM.m        |       Finds the covariance submatrix for a bipartition from the full covariance matrix                |
 |        lyapunov_ode         |       ODE that defines the Lyapunov equation to be integrated by ode45                                |
-|          func.m             |         Auxiliar mathematical function to the von Neumann entropy                                     |
+|          func.m             |         Auxiliar mathematical function for the von Neumann entropy                                    |
 |         Example.m           |                 Basic example of usage of the Toolbox                                                 |
 
 ## Acknowledgment
