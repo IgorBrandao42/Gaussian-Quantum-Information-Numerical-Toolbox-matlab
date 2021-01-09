@@ -95,22 +95,22 @@ Cite this toolbox as:
 
 ## File Listing
 
-|          File name          |                               What it does                                                         |
-|-----------------------------|----------------------------------------------------------------------------------------------------|
-|        simulation.m         |     Class definning a simulation of N particles interacting with an optical cavity                 |
-|         particle.m          |                    Class definning a nanoparticle                                                  |
-|      optical_cavity.m       |                   Class definning an optical cavity                                                |
-|-----------------------------|----------------------------------------------------------------------------------------------------|
-|  symplectic_eigenvalues.m   |            Calculates the sympletic eigenvalues of a covariance matrix                             |
-|   von_Neumann_Entropy.m     |  Calculates the von Neumann entropy for a multipartite gaussian system from its covariance matrix  |
-|  logarithmic_negativity2.m  |   Calculation of the logarithmic negativity for a bipartite system from its covariance matrix      |
-|         fidelity.m          |          Calculates the fidelity between the two arbitrary gaussian states                         |
-|-----------------------------|----------------------------------------------------------------------------------------------------|
-|      single_mode_CM.m       |     Finds the covariance submatrix for a single mode from the full covariance matrix               |
-|       bipartite_CM.m        |       Finds the covariance submatrix for a bipartition from the full covariance matrix             |
-|        lyapunov_ode         |       ODE that defines the Lyapunov equation to be integrated by ode45                             |
-|          func.m             |         Auxiliar mathematical function to the von Neumann entropy                                  |
-|         Example.m           |                 Basic example of usage of the Toolbox                                              |
+|          File name          |                               What it does                                                            |
+|-----------------------------|-------------------------------------------------------------------------------------------------------|
+|        simulation.m         |     Class definning a simulation of N particles interacting with an optical cavity                    |
+|         particle.m          |                    Class definning a nanoparticle                                                     |
+|      optical_cavity.m       |                   Class definning an optical cavity                                                   |
+|-----------------------------|-------------------------------------------------------------------------------------------------------|
+|  symplectic_eigenvalues.m   |            Calculates the sympletic eigenvalues of a covariance matrix                                |
+|   von_Neumann_Entropy.m     |  Calculates the von Neumann entropy     for a multipartite gaussian system from its covariance matrix |
+|  logarithmic_negativity2.m  |   Calculates the logarithmic negativity for a bipartite   gasussian system from its covariance matrix |
+|         fidelity.m          |          Calculates the fidelity between the two arbitrary gaussian states                            |
+|-----------------------------|-------------------------------------------------------------------------------------------------------|
+|      single_mode_CM.m       |     Finds the covariance submatrix for a single mode from the full covariance matrix                  |
+|       bipartite_CM.m        |       Finds the covariance submatrix for a bipartition from the full covariance matrix                |
+|        lyapunov_ode         |       ODE that defines the Lyapunov equation to be integrated by ode45                                |
+|          func.m             |         Auxiliar mathematical function to the von Neumann entropy                                     |
+|         Example.m           |                 Basic example of usage of the Toolbox                                                 |
 
 ## Acknowledgment
 The author thanks Daniel Ribas Tandeitnik and Professor Thiago Guerreiro for the discussions. The author is thankful for support received from FAPERJ Scholarship No. E-26/200.270/2020
