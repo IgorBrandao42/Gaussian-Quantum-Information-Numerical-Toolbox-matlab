@@ -1,7 +1,17 @@
 
 # Gaussian Quantum Information Toolbox for Linear Optomechanics
 
-This is a MATLAB Toolbox for time evolution of linear optomechanical systems in gaussian states
+This is a MATLAB Toolbox for numerical simulation of the time evolution of linear quantum optomechanical systems in gaussian states following an open quantum dynamics.
+
+The simulated system consists of $N$ particles interacting with a single eletromagnetic field, considered to be an optical cavity field. The Hamiltonian that describes this system is
+
+$$\hat{H} = \hbar\Delta \hat{a}^\dagger\hat{a} + \sum_{j=1}^{N}  \hbar\omega_j \hat{b}_j^\dagger\hat{b}_j + \sum_{j=1}^{N}  \hbar g_j(\hat{a}^\dagger + \hat{a})(\hat{b}_j^\dagger + \hat{b}_j) \, ,$$
+
+where $\hat{a}$ ($\hat{a}^\dagger$) is the annihilation (creation) operator for the cavity field with natural frequency $\Delta$; $\hat{b}$ ($\hat{b}^\dagger$) is the annihilation (creation) operator for the $j$-th particle each with natural frequency $\omega_j$, and $g_j$ is the coupling strength of the interaction.
+
+Initially, the particles are assumed to be each in a thermal state and the cavity field in a vacuum state. As this Hamiltonian preserves their gaussianity [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621), this toolbox focus on the time evolution of the expected values of the quadratures and the covariance matrix.
+
+The time evolution is modelled by a set of quantum Langevin equations for the quadratures and a Lyapunov equation for the covariance matrix. For the full description of the open quantum dynamics, please refer to Section III of [[Brandao2021]](https://arxiv.org/abs/2006.02455).
 
 ## Installation
 
