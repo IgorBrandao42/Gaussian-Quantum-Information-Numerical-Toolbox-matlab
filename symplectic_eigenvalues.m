@@ -1,7 +1,7 @@
 function lambda = symplectic_eigenvalues(V, Omega)
 % Calculates the sympletic eigenvalues of a covariance matrix V with symplectic form Omega
 % Finds the absolute values ofthe eigenvalues of i\Omega V and removes repeated entries
-% 
+%  
 % PARAMETERS:
 %   V - covariance matrx whose symplatic eigenvalues are to be found
 %   Omega (optional) - symplectic form, if this parameter is not passed, it finds the standard symplectic form
