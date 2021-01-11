@@ -1,17 +1,23 @@
 
+
 # Gaussian Quantum Information Toolbox for Linear Optomechanics
 
-This is a MATLAB Toolbox for numerical simulation of the time evolution of linear quantum optomechanical systems in gaussian states following an open quantum dynamics.
+This is a MATLAB Toolbox for numerical simulation of
 
-The simulated system consists of N particles interacting with a single eletromagnetic field, considered to be an optical cavity field. The Hamiltonian that describes this system is
+ 1. Quantum Information with gaussian states;
+ 2. Time evolution of linear quantum optomechanical systems in gaussian states following an open quantum dynamics.
+
+The numerical Gaussian Quantum Information portion only assumes the user can externally calculate the mean values of the quadratures and the covariance matrix of the multipartite gaussian state. For the full description and notation used for gaussian quantum states, please refere to [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621).
+
+The numerical time evolution portion simulates N bosonic modes (particles) interacting with a single common bosonic mode (optical cavity eletromagnetic field). The Hamiltonian that describes this interaction is
 
 ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7BH%7D%20%3D%20%5Chbar%5CDelta%20%5Chat%7Ba%7D%5E%5Cdagger%5Chat%7Ba%7D%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%5Comega_j%20%5Chat%7Bb%7D_j%5E%5Cdagger%5Chat%7Bb%7D_j%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%20g_j%28%5Chat%7Ba%7D%5E%5Cdagger%20&plus;%20%5Chat%7Ba%7D%29%28%5Chat%7Bb%7D_j%5E%5Cdagger%20&plus;%20%5Chat%7Bb%7D_j%29%20%5C%2C%20%2C)
 
-where ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D) (![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D%5E%5Cdagger)) is the annihilation (creation) operator for the cavity field with natural frequency ![equation](https://latex.codecogs.com/gif.latex?%5CDelta); ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Bb%7D_j) (![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Bb%7D%5E%5Cdagger_j)) is the annihilation (creation) operator for the j-th particle each with natural frequency ![equation](https://latex.codecogs.com/gif.latex?%5Comega_j), and ![equation](https://latex.codecogs.com/gif.latex?g_j) is the coupling strength of the interaction.
+where ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D) (![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D%5E%5Cdagger)) is the annihilation (creation) operator for the cavity field with natural frequency ![equation](https://latex.codecogs.com/gif.latex?%5CDelta); ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Bb%7D_j) ![equation](https://latex.codecogs.com/gif.latex?%5Cbig%28%5Chat%7Bb%7D_j%5E%5Cdagger%5Cbig%29) is the annihilation (creation) operator for the j-th particle each with natural frequency ![equation](https://latex.codecogs.com/gif.latex?%5Comega_j), and ![equation](https://latex.codecogs.com/gif.latex?g_j) is the coupling strength of the interaction.
 
-Initially, the particles are assumed to be each in a thermal state and the cavity field in a vacuum state. As this Hamiltonian preserves their gaussianity [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621), this toolbox focus on the time evolution of the expected values of the quadratures and the covariance matrix.
+Initially, the particles are assumed to be each in a thermal state and the cavity field in a vacuum state. As this Hamiltonian preserves their gaussianity, this toolbox focus on the time evolution of the expected values of the quadratures and the covariance matrix. The open quantum dynamics is modelled by a set of quantum Langevin equations for the quadratures and a Lyapunov equation for the covariance matrix. 
 
-The time evolution is modelled by a set of quantum Langevin equations for the quadratures and a Lyapunov equation for the covariance matrix. For the full description of the open quantum dynamics, please refer to Section III of [[Brandao2021]](https://arxiv.org/abs/2006.02455).
+For the full description of the open quantum dynamics, please refer to [[arxiv:2006.02455]](https://arxiv.org/abs/2006.02455).
 
 ## Installation
 
@@ -96,16 +102,18 @@ Cite this toolbox as:
 ## File Listing
 
 |          File name          |                               What it does                                                            |
-|-----------------------------|-------------------------------------------------------------------------------------------------------|
+|-------------------|-------------------------------------------------------------------------------------------------------|
 |        simulation.m         |     Class definning a simulation of N particles interacting with an optical cavity                    |
 |         particle.m          |                    Class definning a nanoparticle                                                     |
 |      optical_cavity.m       |                   Class definning an optical cavity                                                   |
-|-----------------------------|-------------------------------------------------------------------------------------------------------|
+|-------------------|------------------------------------------------------------------------------------|
 |  symplectic_eigenvalues.m   |            Calculates the sympletic eigenvalues of a covariance matrix                                |
-|   von_Neumann_Entropy.m     |  Calculates the von Neumann entropy     for a multipartite gaussian state from its covariance matrix  |
-|  logarithmic_negativity2.m  |   Calculates the logarithmic negativity for a bipartite   gasussian state from its covariance matrix  |
-|         fidelity.m          |          Calculates the fidelity between the two arbitrary gaussian states                            |
-|-----------------------------|-------------------------------------------------------------------------------------------------------|
+| wigner.m                    | Calculates the wigner function for a gaussian state from its mean value of the quadrature and its covariance matrix |
+|         fidelity.m          |          Calculates the fidelity between the two arbitrary gaussian states from its mean value of the quadrature and its covariance matrix                         |
+|    mutual_information.m     | Calculates the mutual information of a multipartite gaussian state from its covariance matrix
+|   von_Neumann_Entropy.m     |  Calculates the von Neumann entropy     of a multipartite gaussian state from its covariance matrix  |
+|  logarithmic_negativity2.m  |   Calculates the logarithmic negativity of a bipartite   gasussian state from its covariance matrix  |
+|-------------------|------------------------------------------------------------------------------------|
 |      single_mode_CM.m       |     Finds the covariance submatrix for a single mode from the full covariance matrix                  |
 |       bipartite_CM.m        |       Finds the covariance submatrix for a bipartition from the full covariance matrix                |
 |        lyapunov_ode         |       ODE that defines the Lyapunov equation to be integrated by ode45                                |
