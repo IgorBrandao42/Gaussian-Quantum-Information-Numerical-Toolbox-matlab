@@ -11,10 +11,10 @@ function F = fidelity(u_1, V_1, u_2, V_2, Omega)
 % The user should note that non-normalized quadratures are expected;
 % They are normalized to be in accordance with the notation of Phys. Rev. Lett. 115, 260501.
 
-if size(u_1, 2) > 1                      % Just make sure there will be no problem with the dimensions !
+if size(u_1, 2) == length(V_1)          % Just make sure there will be no problem with the dimensions !
   u_1 = u_1.';
 end
-if size(u_2, 2) > 1
+if size(u_2, 2) == length(V_2)
   u_2 = u_2.';
 end
 

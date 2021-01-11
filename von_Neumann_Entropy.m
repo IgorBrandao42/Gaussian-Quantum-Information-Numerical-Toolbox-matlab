@@ -2,7 +2,7 @@ function Entropy = von_Neumann_Entropy(V_cell)
 % Calculation of the von Neumann entropy for a multipartite gaussian system
 %
 % PARAMETERS:
-%  t - times at which the von Neumann entropy will be evaluated
+%  V_cell - cell where each entry is a multipartite covariance matrix for a gaussian state
 %
 % MATHEMATICAL DESCRIPTION
 % Calculation of the von Neumann entropy for a multipartite gaussian system
