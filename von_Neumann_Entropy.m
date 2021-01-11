@@ -12,9 +12,9 @@ function Entropy = von_Neumann_Entropy(V_cell)
 % function of the symplectic eigenvalues of the covariance matrix
 % (\nu_{k}):
 %
-% S_{N} = \sum_{k=1}^{N} g(\nu_k)
+% S_{N} = \sum_{k=1}^{N} func(\nu_k)
 %
-% where g(x) = [(x+1)/2]*log((x+1)/2) - [(x-1)/2]*log((x-1)/2) ,
+% where func(x) = [(x+1)/2]*log((x+1)/2) - [(x-1)/2]*log((x-1)/2) ,
 % and \nu_k are the sympletic eigenvalues of V,
 % i.e., modulus of the eigenvalues of i \Omega V
 %
@@ -28,7 +28,7 @@ for i=1:N                                % Build the symplectic form
   Omega = blkdiag(Omega, omega);
 end
 
-Entropy = zeros([length(V_cell), 1]);    % Allocate space in memory to save the value of the entropy at each time
+Entropy = zeros( size(V_cell) );         % Allocate space in memory to save the value of the entropy at each time
 
 parfor i=1:length(V_cell)                % Parallel loop to save time
   

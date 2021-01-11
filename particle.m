@@ -1,4 +1,4 @@
-classdef particle < handle                                 % class definning a levitated nanoparticle
+classdef particle < handle                                 % class definning a nanoparticle
   properties
     omega                                                  % Natural frequency               [Hz] 
     g                                                      % Coupling strength with cavity   [Hz]
@@ -78,12 +78,16 @@ classdef particle < handle                                 % class definning a l
     function F = fidelity_given_temperature(obj, T, V_0)
       % Internal function for 'obj.approx_temperature'
       % 
-      % Calculates the fidelity betwee the covariance matrix of a thermal state at temperature T
-      % and the covariance matrix V_0
+      % Calculates the fidelity between the covariance matrix 
+      % of a thermal state at temperature T and the covariance matrix V_0
+      % 
       % PARAMETERS:
       %   obj - class instance
       %   T   - temperature for thermal state
       %   V_0 - single mode covariance matrix to be compared
+      %
+      % The formula for the fidelity used here is specific for comparison of
+      % two single-mode Gaussian states, see Rev. Mod. Phys. 84, 621.
       
       k_B = 1.381e-23;                                 % J/K
       hbar = 1.055e-34;                                % J*s

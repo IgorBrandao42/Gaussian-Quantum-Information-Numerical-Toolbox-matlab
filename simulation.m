@@ -20,9 +20,10 @@ classdef simulation < handle                               % Class simulating an
     J_cavity                                               % Heat Flux between each  particle and the cavity         (expectation value)
     J_env                                                  % Heat Flux between each nanoparticle and the environment (expectation value, only valid when kappa > omega(j) )
     Log_Neg                                                % Logarithmic Negativity for each bipartition 
-    Entropies                                              % von Neumann Entropy for each bipartition (see 'particle' class for single mode Entropy)
+    Entropy_bipartitions                                   % von Neumann Entropy for each bipartition (see 'particle' class for single mode Entropy)
     Entropy_system                                         % von Neumann Entropy for the whole system
-    I_mutual                                               % Mutual Information  for the whole system
+    I_tot                                                  % Mutual Information  for the whole system
+    I_particles                                            % Mutual Information  for the particles
   end
   
   methods
@@ -388,7 +389,7 @@ classdef simulation < handle                               % Class simulating an
       for i=1:N_modes                                      % Loop through each mode
         for j=i+1:N_modes                                  % Loop through each non-repeated mode and skip diagonal
           
-          V = bipartite_CM(obj.V_cell, i-1, j-1);          % From the full CM, get the sub matrix for the current bipartition
+          V = bipartite_CM(obj.V_cell, i, j);          % From the full CM, get the sub matrix for the current bipartition
           
           obj.Log_Neg(i, j, :) = logarithmic_negativity2(V); % Logarithmic Negativity between modes i-1 and j-1
         end
@@ -403,33 +404,33 @@ classdef simulation < handle                               % Class simulating an
       %   obj   - class instance
       %
       % Calculates the arrays:
-      % obj.Entropies(n, i, j)      - Entropy in the bipartition with the n-th and i-th modes at the j-th time
+      % obj.Entropy_bipartitions(n, i, j)      - Entropy in the bipartition with the n-th and i-th modes at the j-th time
       % obj.cavity.Entropy(j)       - Entropy for the cavity at the j-th time
       % obj.particles{n}.Entropy(j) - Entropy for the n-th particle at the j-th time
       
       N_modes = obj.N_particles + 1;                       % Useful constant
       
-      obj.Entropies = zeros([N_modes, N_modes, obj.N_time]); % Variable to store the von Neumann Entropies
+      obj.Entropy_bipartitions = zeros([N_modes, N_modes, obj.N_time]); % Variable to store the von Neumann Entropies
       Entropy_single_mode =    zeros([N_modes, obj.N_time]); % Variable to store the von Neumann Entropies
       
       for i=1:N_modes                                      % Loop through each mode
-        V = single_mode_CM(obj.V_cell, i-1);               % Get the CM for only the i-th mode
+        V = single_mode_CM(obj.V_cell, i);                 % Get the CM for only the i-th mode
         
         Entropy_single_mode(i, :) = von_Neumann_Entropy(V);% von Neumann Entropy for i-th mode
         
         for j=i+1:N_modes                                  % Loop through each non-repeated mode
-          V = bipartite_CM(obj.V_cell, i-1, j-1);          % From the full CM, get the sub matrix for the current bipartition
+          V = bipartite_CM(obj.V_cell, i, j);          % From the full CM, get the sub matrix for the current bipartition
           
-          obj.Entropies(i, j, :) = von_Neumann_Entropy(V); % von Neumann Entropy between modes i-1 and j-1
+          obj.Entropy_bipartitions(i, j, :) = von_Neumann_Entropy(V); % von Neumann Entropy between modes i-1 and j-1
         end
       end                                                  % Mode 0 describes the cavity field and mode j>0 describe the j-th particle
       
-      obj.cavity.Entropy = Entropy_single_mode(1, :);      % Store the cavity entropy accordingly
+      obj.cavity.Entropy = Entropy_single_mode(1, :).';      % Store the cavity entropy accordingly
       for j=1:obj.N_particles
-        obj.particles{j}.Entropy = Entropy_single_mode(j+1, :); % Store the each particle entropy accordingly
+        obj.particles{j}.Entropy = Entropy_single_mode(j+1, :).'; % Store the each particle entropy accordingly
       end
       
-      obj.Entropy_system = von_Neumann_Entropy(obj.V_cell).';% Calculate the entropy of the full system
+      obj.Entropy_system = von_Neumann_Entropy(obj.V_cell);% Calculate the entropy of the full system
       
     end
     
@@ -502,18 +503,51 @@ classdef simulation < handle                               % Class simulating an
     end
     
     function mutual_information(obj)
-      if isempty(obj.particles{1}.Entropy) || isempty(obj.Entropies)
+      % Calculates the mutual information for the complete system
+      % 
+      % PARAMETERS:
+      %   obj   - class instance
+      % 
+      % Calculates:
+      % obj.I_tot(j) - mutual information for the complete system at the j-th time
+      
+      if isempty(obj.particles{1}.Entropy) || isempty(obj.Entropy_bipartitions)
         obj.entropy();                                     % If no entropy was previously calculated, calculate it!
       end
       
-      obj.I_mutual = obj.cavity.Entropy;                   % We start with the entropy of the cavity
+      obj.I_tot = zeros( size(obj.cavity.Entropy) );                   % We start with the entropy of the cavity
       
       for j=1:obj.N_particles
-        obj.I_mutual = obj.I_mutual + obj.particles{j}.Entropy; % Then we sum with the entropy of each nanoparticle
+        obj.I_tot = obj.I_tot + obj.particles{j}.Entropy; % Then we sum with the entropy of each nanoparticle
       end
+      S_each_particle_sum = obj.I_tot;                    % Save the sum of the particles' entropy for latter
       
-      obj.I_mutual = obj.I_mutual - obj.Entropy_system;    % And finally subtract the entropy of the full system
+      obj.I_tot = obj.I_tot + obj.cavity.Entropy;         % Sum up the final mode entropy
       
+      obj.I_tot = obj.I_tot - obj.Entropy_system;         % And finally subtract the entropy of the full system
+      
+      V_particles = obj.CM_for_the_particles();           % Find the covariance matrix just for the particles
+      S_particles = von_Neumann_Entropy(V_particles);     % Find the entropy for all particles together
+      
+      obj.I_particles = S_each_particle_sum - S_particles;%Mutual information for the particles
+    end
+    
+    function V = CM_for_the_particles(obj)
+        % Finds the covariance submatrices only for the particles
+        %
+        % PARAMETERS:
+        %   obj   - class instance
+        
+        
+        V = cell( size(obj.V_cell) );                % Cell of the same size, but each entry is a single mode CM
+        V_aux = obj.V_cell;
+        
+        parfor i=1:length(obj.V_cell)
+          V_temp = V_aux{i};                    % Take the full Covariance matrix at the i-th entry
+          
+          V{i} = V_temp(3:end, 3:end);           % Only look for the submatrix corresponding to the desired mode
+        end
+        
     end
     
     function plot_entanglement(obj)
@@ -559,7 +593,7 @@ classdef simulation < handle                               % Class simulating an
     end
     
     function plot_entanglement_and_entropy(obj)
-      if isempty(obj.Log_Neg) || isempty(obj.Entropies)
+      if isempty(obj.Log_Neg) || isempty(obj.Entropy_bipartitions)
         disp("No logarithmic negativity or entropy calulated, please calculate it before plotting it!")
         return
       end
@@ -589,7 +623,7 @@ classdef simulation < handle                               % Class simulating an
           ylabel("Log. Neg.");
           
           yyaxis right                                                  % Right axis of the plot is entropy
-          plot(obj.t, reshape(obj.Entropies(i, j, :), [obj.N_time, 1]), 'r')
+          plot(obj.t, reshape(obj.Entropy_bipartitions(i, j, :), [obj.N_time, 1]), 'r')
           ylabel("Entropy");
           
           title(title_begining(i) + " and particle " + (j-1));          % Title for current subplot
@@ -655,7 +689,7 @@ classdef simulation < handle                               % Class simulating an
     end
     
     function plot_mutual_information(obj)
-      if isempty(obj.I_mutual)
+      if isempty(obj.I_tot)
         disp("The mutual information of the system was not calulated, please calculate it before plotting it!")
         return
       end
@@ -665,7 +699,27 @@ classdef simulation < handle                               % Class simulating an
       
       title("Mutual information of the system");     % Title for the plot
       
-      plot(obj.t, real(obj.I_mutual), 'k', 'Linewidth', 1.5)
+      plot(obj.t, real(obj.I_tot), 'k', 'Linewidth', 1.5)
+      
+      ylabel("Mutual information");
+      
+      xlim([obj.t(1), obj.t(end)]);                        % Adjust x-axis and its label
+      xlabel('t [s]')
+      
+      set(gca, 'Fontsize', 18)                             % Increase the font for readability
+      set(gca, 'TickDir', 'out')                           % Set thicks outward
+      
+      if isempty(obj.I_particles)
+        disp("The mutual information of the particles was not calulated, please calculate it before plotting it!")
+        return
+      end
+      
+      figure('Name', "Mutual information of the particles");      % Open a figure to contain the subplots
+      hold on
+      
+      title("Mutual information of the particles");     % Title for the plot
+      
+      plot(obj.t, real(obj.I_particles), 'k', 'Linewidth', 1.5)
       
       ylabel("Mutual information");
       
