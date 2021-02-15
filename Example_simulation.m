@@ -1,24 +1,22 @@
 %% Input parameters
-omega =    2*pi*[190e+3;  160e+3;  180e+3];      % Natural frequency of the particles  [Hz]
-g     =    2*pi*[ 42e+3; 35.3e+3; 39.8e+3];      % Coupling strength                   [Hz]
-gamma =    2*pi*[ 10e+3;   10e+3;   10e+3];      % Damping                             [Hz]
-T     =         [  1e-3;    1e-3;    1e-3];      % Initial temperature of each particle             [K]
-T_environment = [  1e-3;    1e-3;    1e-3];      % Temperature for the environment of each particle [K]
+omega =    2*pi*[305.4e+3;  305.4e+3;  305.4e+3];     % Natural frequency of the particles [Hz]
+g     =    2*pi*[ 64.0e+3;   93.2e+3;  109.2e+3];     % Coupling strength                  [Hz]
+gamma =    2*pi*[ 9.57e-4;   9.57e-4;   9.57e-4];     % Damping                            [Hz]
+T     =         [ 4.6e-6;    4.6e-6;     4.6e-6];     % Initial temperature of each particle             [K]
+T_environment = [   300 ;       300;        300];     % Temperature for the environment of each particle [K]
 
-% The length of the vectors with the parameters for the particles 
-% define the number of particles in the simulation
+% The length of the vectors with the parameters for the particles define the number of particles in the simulation
 
-Delta = +omega(1);                               % Cavity field natural frequency      [Hz]   (Cavity-tweezer detuning)
-kappa = 2*pi*193e+3;                             % Cavity linewidth                    [Hz]
+Delta = 2*pi*315e+3;                                  % Cavity field natural frequency      [Hz]   (Cavity-tweezer detuning)
+kappa = 2*pi*193e+3;                                  % Cavity linewidth                    [Hz]
 
-% If you wish to consider only the closed unitary dynamics of the system, 
-% just make gamma = 0 and kappa = 0 by uncommenting the following lines
-% kappa=0;
+% If you wish to consider only the closed unitary dynamics of the system, just make gamma = 0 and kappa = 0 by uncommenting the following lines
+% kappa=0
 % gamma = zeros(size(omega));
 
 
 %% Time interval for simulation
-t = linspace(0, 60/omega(1), 1e+3);              % Time stamps for the calculations
+t = linspace(0, 4.2e-6, 1e+3);                        % Time interval for the simulation   [s]
 
 
 %% Example of a complete simulation

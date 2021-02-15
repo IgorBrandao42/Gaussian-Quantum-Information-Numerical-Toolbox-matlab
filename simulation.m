@@ -125,7 +125,7 @@ classdef simulation < handle                               % Class simulating an
         
         obj.occupation_number();                           % Calculate the occupation numbers for the cavity and particles
         
-        obj.heat_fluxes();                                 % Calculate the mean value of all heat fluxes
+      % obj.heat_fluxes();                                 % Calculate the mean value of all heat fluxes
         
         obj.entanglement();                                % Calculate the logarithmic negativy for each bipartition of the system
         
@@ -900,7 +900,7 @@ classdef simulation < handle                               % Class simulating an
       
       obj.plot_single_mode_entropy()
       
-      obj.plot_heat_fluxes()
+    % obj.plot_heat_fluxes()
       
       obj.plot_occupation_number()
       
