@@ -1,23 +1,20 @@
-
-
-# Gaussian Quantum Information Toolbox for Linear Optomechanics
+# Quantum Open Dynamics and Gaussian Information : Linear Optomechanics
 
 This is a MATLAB Toolbox for numerical simulation of
 
- 1. Quantum Information with gaussian states;
- 2. Time evolution of linear quantum optomechanical systems in gaussian states following an open quantum dynamics.
+ 1. Time evolution of linear quantum optomechanical systems in gaussian states following an open quantum dynamics;
+ 2. Quantum informational measures for gaussian states;
 
-The numerical Gaussian Quantum Information portion only assumes the user can externally calculate the mean values of the quadratures and the covariance matrix of the multipartite gaussian state. For the full description and notation used for gaussian quantum states, please refere to [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621).
-
-The numerical time evolution portion simulates N bosonic modes (particles) interacting with a single common bosonic mode (optical cavity eletromagnetic field). The Hamiltonian that describes this interaction is
+The numerical time evolution portion of this toolbox simulates N bosonic modes (particles) interacting with a single common bosonic mode (optical cavity eletromagnetic field). The Hamiltonian that describes this interaction is
 
 ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7BH%7D%20%3D%20%5Chbar%5CDelta%20%5Chat%7Ba%7D%5E%5Cdagger%5Chat%7Ba%7D%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%5Comega_j%20%5Chat%7Bb%7D_j%5E%5Cdagger%5Chat%7Bb%7D_j%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%20g_j%28%5Chat%7Ba%7D%5E%5Cdagger%20&plus;%20%5Chat%7Ba%7D%29%28%5Chat%7Bb%7D_j%5E%5Cdagger%20&plus;%20%5Chat%7Bb%7D_j%29%20%5C%2C%20%2C)
 
 where ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D) (![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D%5E%5Cdagger)) is the annihilation (creation) operator for the cavity field with natural frequency ![equation](https://latex.codecogs.com/gif.latex?%5CDelta); ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Bb%7D_j) ![equation](https://latex.codecogs.com/gif.latex?%5Cbig%28%5Chat%7Bb%7D_j%5E%5Cdagger%5Cbig%29) is the annihilation (creation) operator for the j-th particle each with natural frequency ![equation](https://latex.codecogs.com/gif.latex?%5Comega_j), and ![equation](https://latex.codecogs.com/gif.latex?g_j) is the coupling strength of the interaction.
 
-Initially, the particles are assumed to be each in a thermal state and the cavity field in a vacuum state. As this Hamiltonian preserves their gaussianity, this toolbox focus on the time evolution of the expected values of the quadratures and the covariance matrix. The open quantum dynamics is modelled by a set of quantum Langevin equations for the quadratures and a Lyapunov equation for the covariance matrix. 
+Initially, the particles are assumed to be each in a thermal state and the cavity field in a vacuum state. In a latter version, the initial state will be an extra parameter allowing for any gaussian state. As the above Hamiltonian preserves the gaussianity of the initial state, this toolbox focus on the time evolution of the expected values of the quadratures, through a set of quantum Langevin equations, and of the covariance matrix, through a Lyapunov equation. For the full description of the open quantum dynamics, please refer to "Coherent Scattering-mediated correlations between levitated nanospheres" (TBA).
 
-For the full description of the open quantum dynamics, please refer to [[arxiv:2006.02455]](https://arxiv.org/abs/2006.02455).
+In regards to the numerical Gaussian Quantum Information portion of this toolbox, given a gaussian state's expected quadratures and/or covariance matrix, it calculates:
+Its wigner function, von Neumann entropy, logarithmic negaitivy, mutual information, its covariance matrix's symplectic_eigenvalues and single mode partitions and bipartitions. Given two arbitrary gaussian states, it also computes it quantum fidelity. For the full description and notation used for gaussian quantum states, please refere to [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621). For the quantum fidelity, see [[Phys. Rev. Lett. 115, 260501]](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.115.260501).
 
 ## Installation
 
@@ -31,18 +28,17 @@ addpath('<download-path>/<name-folder>');
 
 This program only inputs are the parameters values and time interval for the calculation. The program infers the number of particles from the lengths of these vectors.
 ```MATLAB
-% Define the constants for the system under study. 
-% In this case 3 particles and one cavity.
-omega =    2*pi*[190e+3;  160e+3;  180e+3];     % Natural frequency of the particles
-g     =    2*pi*[ 42e+3; 35.3e+3; 39.8e+3];     % Coupling strength
-gamma =    2*pi*[ 10e+3;   10e+3;   10e+3];     % Damping
-T     =         [  1e-1;    1e-1;    1e-1];     % Initial temperature of each particle
-T_environment = [  1e-1;    1e-1;    1e-1];     % Temperature for the environment of each particle
-Delta = +omega(1);                              % Cavity field natural frequency
-kappa = 2*pi*193e+3;                            % Cavity linewidth
+% Define the constants for the system under study (in this case 3 particles and one cavity)
+omega =    2*pi*[305.4e+3;  305.4e+3;  305.4e+3];     % Natural frequency of the particles [Hz]
+g     =    2*pi*[ 64.0e+3;   93.2e+3;  109.2e+3];     % Coupling strength                  [Hz]
+gamma =    2*pi*[ 9.57e-4;   9.57e-4;   9.57e-4];     % Damping                            [Hz]
+T     =         [ 4.6e-6;    4.6e-6;     4.6e-6];     % Initial temperature of each particle             [K]
+T_environment = [   300 ;       300;        300];     % Temperature for the environment of each particle [K]
 
-% Define the time interval to be studied
-t = linspace(0, 1e-5, 1e+3);
+Delta = 2*pi*315e+3;                                  % Cavity field natural frequency     [Hz]
+kappa = 2*pi*193e+3;                                  % Cavity linewidth                   [Hz]
+
+t = linspace(0, 4.2e-6, 1e+3);                        % Time interval for the simulation   [s]
 ```
 
 You need to create an instance of a simulation (class) with the parameters and run the calculations at the time stamps:
@@ -71,7 +67,6 @@ The user can choose to calculate only what suits them, by passing extra paramete
 | "entanglement"       | Calculate the logarithmic negativity for each bipartition |
 | "entropy"            | Calculate the von Neumann entropy for each mode, bipartition and the whole system|
 | "mutual_information" | Calculate the mutual information for the whole system|
-|   "heat_flux"        | Calculate the expectation value of every heat fluxes in the system|
 | "fidelity_test"      | Approximate each mode state by a thermal state through Fideliy, finding the effective temperature |
 
 ```MATLAB
@@ -80,14 +75,14 @@ example.run(t, "occupation_number");
 ```
 
 #### Running Example
-In the file **Example.m** there is a basic example of the capabilities of this Toolbox
+In the file **Example.m** there is a basic example of the capabilities of this Toolbox.
 
 ## Author
 [Igor Brandão](mailto:igorbrandao@aluno.puc-rio.br) - Master's student in [Thiago Guerreiro](mailto:barbosa@puc-rio.br)'s Lab at Pontifical Catholic University of Rio de Janeiro, Brazil
 
 ## Mathematical Formalism
 For the optomechanics time evolution, this codes was originally created for and uses the same formalism as:
-> Igor Brandão, Daniel Tandeitnik, Thiago Guerreiro, "Coherent Scattering-mediated heat transport between levitated nanospheres", [arXiv:2006.02455](https://arxiv.org/abs/2006.02455)
+> Igor Brandão, Daniel Tandeitnik, Thiago Guerreiro, "Coherent Scattering-mediated correlations between levitated nanospheres", TBA
 
 For the study of Gaussian Quantum Information, this code was based on and uses the same formalism as:
 
@@ -97,7 +92,7 @@ For the study of Gaussian Quantum Information, this code was based on and uses t
 This code is made available under the Creative Commons Attribution - Non Commercial 4.0 License. For full details see LICENSE.md.
 
 Cite this toolbox as: 
-> Igor Brandão, "Gaussian Quantum Information Toolbox for Linear Optomechanics", [https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Toolbox-for-Linear-Optomechanics](https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Toolbox-for-Linear-Optomechanics). Retrived <*date you downloaded*>
+> Igor Brandão, "Quantum Open Dynamics and Gaussian Information : Linear Optomechanics", [https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Toolbox-for-Linear-Optomechanics](https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Toolbox-for-Linear-Optomechanics). Retrieved <*date-you-downloaded*>
 
 ## File Listing
 
@@ -108,14 +103,14 @@ Cite this toolbox as:
 |      optical_cavity.m       |                   Class definning an optical cavity                                                   |
 |-------------------|------------------------------------------------------------------------------------|
 |  symplectic_eigenvalues.m   |            Calculates the sympletic eigenvalues of a covariance matrix                                |
-| wigner.m                    | Calculates the wigner function for a gaussian state from its mean value of the quadrature and its covariance matrix |
+|          wigner.m           | Calculates the wigner function for a gaussian state from its mean value of the quadrature and its covariance matrix |
 |         fidelity.m          |          Calculates the fidelity between the two arbitrary gaussian states from its mean value of the quadrature and its covariance matrix                         |
 |    mutual_information.m     | Calculates the mutual information of a multipartite gaussian state from its covariance matrix
-|   von_Neumann_Entropy.m     |  Calculates the von Neumann entropy     of a multipartite gaussian state from its covariance matrix  |
-|  logarithmic_negativity2.m  |   Calculates the logarithmic negativity of a bipartite   gasussian state from its covariance matrix  |
+|   von_Neumann_Entropy.m     |  Calculates the von Neumann entropy     of a multipartite gaussian state from its covariance matrix   |
+|  logarithmic_negativity2.m  |   Calculates the logarithmic negativity of a bipartite   gasussian state from its covariance matrix   |
+|      single_mode_CM.m       |     Finds the covariance submatrix for a single mode from the full covariance matrix (partial trace)  |
+|       bipartite_CM.m        |     Finds the covariance submatrix for a bipartition from the full covariance matrix (partial trace)  |
 |-------------------|------------------------------------------------------------------------------------|
-|      single_mode_CM.m       |     Finds the covariance submatrix for a single mode from the full covariance matrix                  |
-|       bipartite_CM.m        |       Finds the covariance submatrix for a bipartition from the full covariance matrix                |
 |        lyapunov_ode         |       ODE that defines the Lyapunov equation to be integrated by ode45                                |
 |          func.m             |         Auxiliar mathematical function for the von Neumann entropy                                    |
 |         Example.m           |                 Basic example of usage of the Toolbox                                                 |
