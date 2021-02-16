@@ -41,8 +41,8 @@ classdef particle < handle                                 % class definning a n
       k_B = 1.381e-23;                                     % Boltzmann's Constant [J/K]
       hbar = 1.055e-34;                                    % Planck's Constant    [J*s]
       
-      obj.nbar_env  = 1/( exp(hbar*obj.omega./(k_B*obj.T_init)) - 1 ); 
-      obj.nbar_init = 1/( exp(hbar*obj.omega./(k_B*obj.T_environment)) - 1 );
+      obj.nbar_init = 1/( exp(hbar*obj.omega./(k_B*obj.T_init)) - 1 ); 
+      obj.nbar_env  = 1/( exp(hbar*obj.omega./(k_B*obj.T_environment)) - 1 );
     end
     
     function approx_temperature(obj, V_0, k)
