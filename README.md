@@ -16,7 +16,7 @@ where ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D) (![equatio
 Initially, the particles are assumed to be each in a thermal state and the cavity field in a vacuum state. In a latter version, the initial state will be an extra parameter allowing for any gaussian state. As the above Hamiltonian preserves the gaussianity of the initial state, this toolbox focus on the time evolution of the expected values of the quadratures, through a set of quantum Langevin equations, and of the covariance matrix, through a Lyapunov equation. For the full description of the open quantum dynamics, please refer to "Coherent Scattering-mediated correlations between levitated nanospheres" [[arxiv:2102.08969]](https://arxiv.org/abs/2102.08969).
 
 In regards to the numerical Gaussian Quantum Information portion of this toolbox, given a gaussian state's expected quadratures and/or covariance matrix, it calculates:
-Its wigner function, von Neumann entropy, logarithmic negaitivy, mutual information, its covariance matrix's symplectic_eigenvalues and single mode partitions and bipartitions. Given two arbitrary gaussian states, it also computes it quantum fidelity. For the full description and notation used for gaussian quantum states, please refere to [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621). For the quantum fidelity, see [[Phys. Rev. Lett. 115, 260501]](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.115.260501).
+Its wigner function, von Neumann entropy, logarithmic negaitivy, mutual information, its covariance matrix's symplectic_eigenvalues and single mode partitions and bipartitions. Given two arbitrary gaussian states, it also computes their quantum fidelity. For the full description and notation used for gaussian quantum states, please refere to [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621). For the quantum fidelity, see [[Phys. Rev. Lett. 115, 260501]](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.115.260501).
 
 ## Installation
 
@@ -37,7 +37,7 @@ gamma =    2*pi*[ 9.57e-4;   9.57e-4;   9.57e-4];     % Damping                 
 T     =         [ 4.6e-6;    4.6e-6;     4.6e-6];     % Initial temperature of each particle             [K]
 T_environment = [   300 ;       300;        300];     % Temperature for the environment of each particle [K]
 
-Delta = 2*pi*315e+3;                                  % Cavity field natural frequency     [Hz]
+Delta = 2*pi*315e+3;                                  % Cavity-tweezer detuning            [Hz] (frequency of the optical mode)
 kappa = 2*pi*193e+3;                                  % Cavity linewidth                   [Hz]
 
 t = linspace(0, 4.2e-6, 1e+3);                        % Time interval for the simulation   [s]
