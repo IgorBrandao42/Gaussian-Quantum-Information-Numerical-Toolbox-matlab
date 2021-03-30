@@ -77,7 +77,7 @@ example.run(t, "occupation_number");
 ```
 
 #### Running Example
-In the file **Example.m** there is a basic example of the capabilities of this Toolbox.
+In the file **Example_simulation.m** there is a basic example of the capabilities of this Toolbox.
 
 ## Author
 [Igor Brandão](mailto:igorbrandao@aluno.puc-rio.br) - Master's student in [Thiago Guerreiro](mailto:barbosa@puc-rio.br)'s Lab at Pontifical Catholic University of Rio de Janeiro, Brazil
