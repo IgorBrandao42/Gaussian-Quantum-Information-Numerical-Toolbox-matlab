@@ -2,6 +2,7 @@ classdef gaussian_state < handle                                 % class definni
   properties
     R                                    % Mean quadratures
     V                                    % Covariance matrix
+    
   end
   
   methods
@@ -22,60 +23,105 @@ classdef gaussian_state < handle                                 % class definni
       %
       % Calculates the initial occupation number and occupation number of the associated heat bath
       
-      if (isstring(varargin{1}) || ischar(varargin{1}))
-        obj.decide_which_state(varargin{:})
+      % TO DO (?): Make sure all entries are real entries and symmetric CM satisfiyng the uncertainty principle
+      
+      if (isstring(varargin{1}) || ischar(varargin{1}))              % If input arguments are name-pair value
+        obj.decide_which_state(varargin{:})                          % Ask proper function to create the right properties of the class
         
-      elseif isnumeric(varargin{1}) && isnumeric(varargin{2})
+      elseif isnumeric(varargin{1}) && isnumeric(varargin{2})        % If input arguments are the first moments of the gaussian state
         R0 = varargin{1};
         V0 = varargin{2};
-        if isvector(R0) && ismatrix(V0) && (length(R0) == length(V0))
-          obj.R = R0;
-          obj.V = V0;
-        end
+        
+        assert(isvector(R0) && ismatrix(V0) && (length(R0) == length(V0)) && (size(V0, 1) == size(V0, 2)), "Unexpected first moments when creating gaussian state!") % Make sure they are a vector and a matrix with same length
+        
+        obj.R = R0(:);                 % Save mean quadratres   in a class properties (Parenthesis to ensure column vector)
+        obj.V = V0;                    % Save covariance matrix in a class properties
         
       else
-        error("Unexpected first parameter when creating gaussian state!")
+        error("Unexpected arguments when creating gaussian state!") % If input arguments do not make sense, call out the user
       end
       
     end
     
     function decide_which_state(obj, varargin)
-      type_state = varargin{1};
+      % If the user provided a name-pair argument to the constructor,
+      % this function reads these arguments and creates the first moments of the gaussian state
       
-      if strcmp(type_state, "vacuum")
-        obj.R = [0, 0];
+      type_state = varargin{1};             % Name of expected type of gaussian state
+      
+      if strcmp(type_state, "vacuum")       % If it is a vacuum state
+        obj.R = [0; 0];                     % Create its first moments
         obj.V = eye(2);
-        return
+        return                              % End function
       end
-      
+      % Make sure there is an extra parameters that is a number
       assert(length(varargin)>1 && isnumeric(varargin{2}) && isscalar(varargin{2}), "Invalid or absent amplitude for non-vacuum gaussian state")
       
-      if strcmp(type_state, "thermal")
-        nbar = varargin{2};
+      if strcmp(type_state, "thermal")      % If it is a thermal state
+        nbar = varargin{2};                 % Make sure its occuption number is a non-negative number
         assert(isreal(nbar) && (nbar>=0), "Imaginary or negative occupation number for thermal state")
-        obj.R = [0, 0];
-        obj.V = diag([2.0*nbar+1, 2.0*nbar+1]);
+        obj.R = [0; 0];
+        obj.V = diag([2.0*nbar+1, 2.0*nbar+1]); % Create its first moments
         
-      elseif strcmp(type_state, "coherent")
+      elseif strcmp(type_state, "coherent") % If it is a coherent state
         alpha = varargin{2};
-        obj.R = [real(alpha), imag(alpha)];
-        obj.V = eye(2);
+        obj.R = [real(alpha); imag(alpha)];
+        obj.V = eye(2);                     % Create its first moments
         
-      elseif strcmp(type_state, "squeezed")
-        r = varargin{2};
+      elseif strcmp(type_state, "squeezed") % If it is a squeezed state
+        r = varargin{2};                    % Make sure its squeezing parameter is a real number
         assert(isreal(r), "Unsupported imaginary amplitude for squeezed state")
-        
-        obj.R = [0, 0];
-        obj.V = diag([exp(-2*r), exp(+2*r)]);
+        obj.R = [0; 0];
+        obj.V = diag([exp(-2*r), exp(+2*r)]); % Create its first moments
         
       else
         error("Unrecognized gaussian state name, please check for typos or explicitelly pass its first moments as arguments")
       end
     end
     
+    function rho = tensor_product(rho_A, rho_B)
+      R0 = [rho_A.R; rho_B.R];
+      V0 = blkdiag(rho_A.V, rho_B.V);
+      
+      rho = gaussian_state(R0, V0);
+    end
+    
+    function rho_A = partial_trace(rho, indexes)
+      N = length(rho.R)/2.0;
+      N_A = length(rho.R) - 2.0*length(indexes); % Twice the number of modes in resulting state
+      assert(N_A>=0, "Partial trace over more states than exists in gaussian state")
+      
+      modes = 1:N;
+      entries = ~ismember(modes, indexes);
+      modes = modes(entries);
+      R0 = zeros(N_A, 1);
+      for i=1:length(modes)
+        j = modes(i);
+        R0(2*i-1:2*i) = rho.R(2*j-1:2*j);
+      end
+      
+      V0 = zeros(N_A, N_A);
+      for i=1:length(modes)
+        m = modes(i);
+        for j=1:length(modes)
+          n = modes(j);
+          
+          V0(2*i-1:2*i, (2*j-1:2*j)) = rho.V(2*m-1:2*m, 2*n-1:2*n);
+        end
+      end
+      
+      rho_A = gaussian_state(R0, V0);
+    end
+    
   end
 end
 
+
+%       R0 = -42*ones(N_A, 1);
+%       for i=1:length(indexes)
+%         j = indexes(i);
+%         R0(2*i-1:2*i) = rho.R(2*j-1:2*j);
+%       end
 
 %elseif length(varargin)< 2 || ~isnumeric(varargin{2}) || ~isscalar(varargin{2})
 %  error("Invalid or absent amplitude for non-vacuum gaussian state")
