@@ -1,19 +1,13 @@
-[![View Quantum Open Dynamics and Gaussian Information Toolbox on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/87614-quantum-open-dynamics-and-gaussian-information-toolbox)
+[![View Gaussian Quantum State Toolbox on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/87614-quantum-open-dynamics-and-gaussian-information-toolbox)
 
-# Quantum Open Dynamics and Gaussian Information : Linear Optomechanics
+# Gaussian Quantum State Toolbox
 
 This is a MATLAB Toolbox for numerical simulation of
 
- 1. Time evolution of linear quantum optomechanical systems in gaussian states following an open quantum dynamics;
- 2. Quantum informational measures for gaussian states;
+ 1. Gaussian states
+ 2. Quantum open dynamics following Langevin and Lyapunov equations of motion;
 
-The numerical time evolution portion of this toolbox simulates N bosonic modes (particles) interacting with a single common bosonic mode (optical cavity eletromagnetic field). The Hamiltonian that describes this interaction is
 
-![equation](https://latex.codecogs.com/gif.latex?%5Chat%7BH%7D%20%3D%20%5Chbar%5CDelta%20%5Chat%7Ba%7D%5E%5Cdagger%5Chat%7Ba%7D%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%5Comega_j%20%5Chat%7Bb%7D_j%5E%5Cdagger%5Chat%7Bb%7D_j%20&plus;%20%5Csum_%7Bj%3D1%7D%5E%7BN%7D%20%5Chbar%20g_j%28%5Chat%7Ba%7D%5E%5Cdagger%20&plus;%20%5Chat%7Ba%7D%29%28%5Chat%7Bb%7D_j%5E%5Cdagger%20&plus;%20%5Chat%7Bb%7D_j%29%20%5C%2C%20%2C)
-
-where ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D) (![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Ba%7D%5E%5Cdagger)) is the annihilation (creation) operator for the cavity field with natural frequency ![equation](https://latex.codecogs.com/gif.latex?%5CDelta); ![equation](https://latex.codecogs.com/gif.latex?%5Chat%7Bb%7D_j) ![equation](https://latex.codecogs.com/gif.latex?%5Cbig%28%5Chat%7Bb%7D_j%5E%5Cdagger%5Cbig%29) is the annihilation (creation) operator for the j-th particle each with natural frequency ![equation](https://latex.codecogs.com/gif.latex?%5Comega_j), and ![equation](https://latex.codecogs.com/gif.latex?g_j) is the coupling strength of the interaction.
-
-Initially, the particles are assumed to be each in a thermal state and the cavity field in a vacuum state. In a latter version, the initial state will be an extra parameter allowing for any gaussian state. As the above Hamiltonian preserves the gaussianity of the initial state, this toolbox focus on the time evolution of the expected values of the quadratures, through a set of quantum Langevin equations, and of the covariance matrix, through a Lyapunov equation. For the full description of the open quantum dynamics, please refer to "Coherent Scattering-mediated correlations between levitated nanospheres" [[arxiv:2102.08969]](https://arxiv.org/abs/2102.08969).
 
 In regards to the numerical Gaussian Quantum Information portion of this toolbox, given a gaussian state's expected quadratures and/or covariance matrix, it calculates:
 Its wigner function, von Neumann entropy, logarithmic negaitivy, mutual information, its covariance matrix's symplectic_eigenvalues and single mode partitions and bipartitions. Given two arbitrary gaussian states, it also computes their quantum fidelity. For the full description and notation used for gaussian quantum states, please refere to [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621). For the quantum fidelity, see [[Phys. Rev. Lett. 115, 260501]](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.115.260501).
