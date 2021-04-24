@@ -2,11 +2,7 @@
 
 # Gaussian Quantum State Toolbox
 
-This is a MATLAB Toolbox for numerical simulation of
-
- 1. Gaussian states
- 2. Quantum open dynamics following Langevin and Lyapunov equations of motion;
-
+This is a MATLAB Toolbox for numerical simulation of quantum gaussian states and their dynamics dictated by a set of linear Langevin and Lyapunov equations
 
 
 In regards to the numerical Gaussian Quantum Information portion of this toolbox, given a gaussian state's expected quadratures and/or covariance matrix, it calculates:
