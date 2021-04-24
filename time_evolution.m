@@ -371,7 +371,18 @@ end % end class
 
 
 
+% Auxiliar function defining the Lyapunov equation
+function dVdt_vector = lyapunov_ode(~, V_old_vector, A, D)
 
+M = size(A, 1);                            % System dimension (N_particles + 1 cavity field)partículas  + 1 campo)
+
+V_old = reshape(V_old_vector, [M, M]);     % Vector -> matrix
+
+dVdt = A*V_old + V_old*transpose(A) + D;   % Calculate how much the CM derivative in this time step
+ 
+dVdt_vector = reshape(dVdt, [M^2, 1]);     % Matrix -> vector
+
+end
 
 
 
@@ -383,58 +394,4 @@ end % end class
 % obj.t = t_span;                             % Store the information about the time interval for the simulation
 %       obj.N_time = length(t_span);                % and its length on the simulation object
 
-% function decide(obj, what_to_calculate)
-% % If additional parameters were passed to function 'run', this function decides what the user asked for
-% %
-% % PARAMETERS:
-% %   obj   - class instance
-% %   what_to_calculate - optional arguments to obj.run dictating which time evolution to perform
-% %
-% % This is an internal method and, in principle, does not need to be called by the user. Why are you reading this?!
-% 
-% if any(strcmp(what_to_calculate, "langevin"))
-%   obj.langevin();                                  % Calculate the time evolution of the mean quadratures
-% end
-% 
-% if any(strcmp(what_to_calculate, "semi_classical"))
-%   obj.langevin_semi_classical();                   % Calculate the semi-classical time evolution of the mean quadratures using Monte Carlos method
-% end
-% 
-% if any(strcmp(what_to_calculate, "lyapunov"))
-%   obj.lyapunov();                                  % Calculate the time evolution of the covariance matrix
-% end
-% 
-% if any(strcmp(what_to_calculate, "steady_state"))
-%   obj.steady_state();                              % Calculate steady-state and check if this simulation achieved it
-% end
-% 
-% if any(strcmp(what_to_calculate, "Slartibartfast"))
-%   obj.langevin();
-%   obj.lyapunov();
-%   obj.build_states();                              % Combine the time evolutions calculated above into an array of gaussian states
-% end
-% 
-% end
-
-
-
-% if isa(obj.A,'function_handle')                      % I have to check if there is a time_dependency on the odes :(
-%   if isa(obj.N,'function_handle')
-%     langevin_ode = @(t,R) obj.A(t)*R + obj.N(t);     % Function handle that defines the Langevin equation (returns the derivative)
-%   else
-%     langevin_ode = @(t,R) obj.A(t)*R + obj.N;        % Function handle that defines the Langevin equation (returns the derivative)
-%   end
-% else
-%   if isa(obj.N,'function_handle')
-%     langevin_ode = @(t,R) obj.A*R + obj.N(t);        % Function handle that defines the Langevin equation (returns the derivative)
-%   else
-%     langevin_ode = @(t,R) obj.A*R + obj.N;           % Function handle that defines the Langevin equation (returns the derivative)
-%   end
-% end
-
-
-% rng(1)                                             % Default random number generator
-% milestone = 10; milestone_update = 10;             % Auxiliar variables to warn user that hthe computer didn't froze !
-% disp("Langevin simulation started...:")            % Warn user that heavy calculation started
-% milestone = update_user_on_loop_progress(i, N_ensemble, milestone, milestone_update); % Update the user on the calculation progress
 

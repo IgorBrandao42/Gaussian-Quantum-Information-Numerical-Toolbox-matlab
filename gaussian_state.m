@@ -8,6 +8,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
   end
   
   methods
+    % Constructor and its auxiliar functions
     function obj = gaussian_state(varargin)
       % Class simulating a gaussian state with mean quadratures and covariance matrix
       % The user can explicetilly pass the first two moments of a multimode gaussian state
@@ -53,11 +54,10 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       obj.Omega = Omega;
       
       % Following line verify if the CM satisfy the uncertainty relation
-      % obj.check();
+      % obj.check_uncertainty_relation();
     end
     
-    % Just for debugging!
-    function check(obj)
+    function V_check = check_uncertainty_relation(obj)
       % Check if the generated covariance matrix indeed satisfies the uncertainty principle
       
       V_check = obj.V + 1i*obj.Omega;
@@ -101,17 +101,28 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
         error("Unrecognized gaussian state name, please check for typos or explicitelly pass its first moments as arguments")
       end
     end
-    
-    function rho = tensor_product(rho_A, rho_B)
+        
+    % Construct another state, from this base gaussian_state
+    function rho = tensor_product(rho_A, rho_array)
       % Given two gaussian states, calculates their tensor produtct, which is also a gaussian state
       
-      R0 = [rho_A.R; rho_B.R];
-      V0 = blkdiag(rho_A.V, rho_B.V);
+      % N_modes_array = [rho_array.N_modes];
       
-      rho = gaussian_state(R0, V0);
+      R_final = rho_A.R;                         % First moments of resulting state is the same of rho_A
+      V_final = rho_A.V;                         % First block diagonal entry is the CM of rho_A
+      
+      for i=1:length(rho_array)
+        R_final = cat(1,  R_final, rho_array(i).R);
+        V_final = blkdiag(V_final, rho_array(i).V);
+      end
+      
+      % Only valid for a tensor product with a single other state
+      % R0 = [rho_A.R; rho_B.R];
+      % V0 = blkdiag(rho_A.V, rho_B.V);
+      
+      rho = gaussian_state(R_final, V_final);
     end
     
-    % This version uses the indexes over what you dont want !
     function rho_A = partial_trace(rho, indexes)
       % Partial trace over the complete gaussian state
       % The indexes are respective to the modes the user wants to trace out (as in the mathematical notation)
@@ -141,7 +152,6 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       rho_A = gaussian_state(R0, V0);
     end
     
-    % This version uses the indexes over what you want !
     function rho_A = only_modes(obj, indexes)
       % Partial trace over the complete gaussian state
       % The indexes are respective to the modes the user wants to retrieve
@@ -165,6 +175,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       rho_A = gaussian_state(R0, V0);
     end
     
+    % Properties of the gaussian state
     function p = purity(rho)
       % Purity of a gaussian state
       % Pure states have purity equal 1
@@ -370,16 +381,19 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       end
     end
     
-    %%%%%%%%%%%%%%%%%%% UNTESTED CODE BELOW %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+    % Gaussian unitaries (only applicable to a single mode states)
     function displace(obj, alpha)
       % Apply displacement operator on a single mode gaussian state
       % TO DO: generalize these operation to many modes!
-      
-      assert(obj.N_modes == 1, "Error with input arguments when trying to apply displacement operator")
-      
+    
+      assert(     obj.N_modes   == 1, "Can only apply displacement operator on single mode state")
       d = [real(alpha); imag(alpha)];
       obj.R = obj.R + d;
+      
+      % If a displacement is attempted at a whole array of states, it is possible to apply a displacement in every entry
+      % however, I cannot see why this would be the desired effect, I prefer to consider an error
+      % assert(all([obj.N_modes]) == 1, "Can only apply displacement operator on single mode state")
+      
     end
     
     function squeeze(obj, r)
@@ -404,6 +418,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       obj.V = Rot*obj.V*(Rot.');
     end
     
+    % Gaussian unitaries (only applicable to a two mode states)
     function beam_splitter(obj, tau)
       % Apply a beam splitter transformation in a gaussian state
       % tau - transmissivity of the beam splitter
@@ -436,57 +451,13 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
 end % classdef
 
 
+% The following initialization of an array of gaussian states generates an unexpected behavior:
+% coherent(1:3)  = gaussian_state("coherent", 2+1i);
 
-% if nargin == 2 && obj.N_modes == 1 % If there is only one mode, displace it
-%   obj.R = obj.R + d;
-% end
-% if nargin>=3 && idx<=obj.N_modes  %
-%   obj.R(2*idx-1:2*idx) = obj.R(2*idx-1:2*idx) + d;
-% else
-%   error("Error with input arguments when trying to apply displacement operator")
-% end
+% HOWEVER, the following works as intended
+% coherent0  = gaussian_state("coherent", 2+1i);
+% coherent = [coherent0, coherent0, coherent0];
 
-% for i=1:length(modes)
-%   j = modes(i);
-%   R0(2*i-1:2*i) = rho.R(2*j-1:2*j);
-% end
-
-%       R0 = -42*ones(N_A, 1);
-%       for i=1:length(indexes)
-%         j = indexes(i);
-%         R0(2*i-1:2*i) = rho.R(2*j-1:2*j);
-%       end
-
-%elseif length(varargin)< 2 || ~isnumeric(varargin{2}) || ~isscalar(varargin{2})
-%  error("Invalid or absent amplitude for non-vacuum gaussian state")
-
-% function obj = gaussian_state(varargin)
-% default_coherent = 0;
-% default_R0 = [0,0];
-% default_V0 = eye(2);
-% validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
-% isvector(R0) && ismatrix(V0) && (length(R0) == length(V0))
-% p = inputParser;
-% validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
-%
-% addOptional (p, 'R0', default_R0, @isvector);
-% addOptional (p, 'V0', default_V0, @ismatrix);
-% addParameter(p, 'coherent', default_coherent, @isstring);
-% addParameter(p, 'shape',defaultShape,@(x) any(validatestring(x,expectedShapes)));
-%
-%
-% parse(p,width,varargin{:});
-% end
-%
-% end
-
-
-% ESTÁ CORRETA, MAS QUERO DEIXAR TUDO UNIFICADO !
-% function rho_A = single_mode(rho, index)
-% idx = 2*index-1;
-% 
-% R0 = rho.R(idx:idx+1);
-% V0 = rho.V(idx:idx+1, idx:idx+1);
-% 
-% rho_A = gaussian_state(R0, V0);
-% end
+% Both create an array of gaussian state, 
+% but the first initialization seems to create a single object and store in every entry of the array
+% So when a change is applied in one entry, the other ones are affected !
