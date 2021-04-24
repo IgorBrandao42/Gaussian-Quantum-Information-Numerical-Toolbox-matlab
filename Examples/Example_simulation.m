@@ -1,7 +1,3 @@
-%% Add path to auxiliar functions (these are important for CS simulation, but not for the toolbox)
-addpath('auxiliar')
-
-
 %% Universal Constants
 k_B = 1.380649e-23;                      % Boltzmann's constant      [J/K]
 hbar = 1.054571817e-34;                  % Reduced Planck's constant [J*s]

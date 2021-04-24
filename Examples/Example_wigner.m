@@ -1,5 +1,5 @@
-A = [[  -2  , +2.5];
-     [-2.5 ,   -2 ]];                             % Define the dynamics
+A = [[  -0.1  , +2.5];
+     [-2.5 ,   -0.1 ]];                             % Define the dynamics
 D = zeros(2,2);
 N = zeros(2,1);
 t = linspace(0, 10, 500);                        % How long to simulate
