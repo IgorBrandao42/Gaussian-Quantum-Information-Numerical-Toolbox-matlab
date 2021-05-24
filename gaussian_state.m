@@ -87,7 +87,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
         
       elseif strcmp(type_state, "coherent") % If it is a coherent state
         alpha = varargin{2};
-        obj.R = [real(alpha); imag(alpha)];
+        obj.R = [2*real(alpha); 2*imag(alpha)];
         obj.V = eye(2);                     % Create its first moments
         
       elseif strcmp(type_state, "squeezed") % If it is a squeezed state
@@ -124,7 +124,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
     end
     
     function rho_A = partial_trace(rho, indexes)
-      % Partial trace over the complete gaussian state
+      % Partial trace over the modes in indexes of the complete gaussian state
       % The indexes are respective to the modes the user wants to trace out (as in the mathematical notation)
       
       N_A = length(rho.R) - 2.0*length(indexes); % Twice the number of modes in resulting state
@@ -153,7 +153,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
     end
     
     function rho_A = only_modes(obj, indexes)
-      % Partial trace over the complete gaussian state
+      % Partial trace over all modes except the ones in indexes of the complete gaussian state
       % The indexes are respective to the modes the user wants to retrieve
       
       N_A = length(indexes); % Twice the number of modes in resulting state
@@ -180,16 +180,18 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       % Purity of a gaussian state
       % Pure states have purity equal 1
       
-      p = 1/sqrt(det(rho.V));
+      p = 1/prod(rho.symplectic_eigenvalues);
     end
     
     function [eta, V_sq, V_asq] = squeezing_degree(obj)
-      % Squeezing degree of the uncertainties of combinations of the quadratures
+      % Degree of squeezing of the uncertainties of combinations of the quadratures
       % 
       % Calculates:
       % V_sq  - variance of the     squeezed quadrature
       % V_asq - variance of the antisqueezed quadrature
       % eta   - ratio of the variances above
+      
+      assert(obj.N_modes == 1, "At the moment, this program only calculates the wigner function for a single mode state")
       
       lambda = eig(obj.V);
       
@@ -236,7 +238,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       
       nu = obj.symplectic_eigenvalues();  % Calculates the sympletic eigenvalues of a covariance matrix V
       
-      nu(nu==1) = nu + 5e-16;             % 0*log(0) is NaN, but in the limit that x->0 : x*log(x) -> 0
+      nu(nu==1) = nu(nu==1) + 5e-16;             % 0*log(0) is NaN, but in the limit that x->0 : x*log(x) -> 0
                                           % MATLAB uses a 15 digits precision, I'm adding a noise at the limit of the numerical precision
                                           
       nu_plus  = (nu + 1)/2.0;            % Temporary variables
@@ -247,7 +249,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
     end
     
     function I = mutual_information(obj)
-      % Mutual infromation of the gaussian state
+      % Mutual information for a multipartite gaussian system
       %
       % Calculates:
       % I     - mutual information  for the total system of the j-th covariance matrix
@@ -263,11 +265,13 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       
       S_tot = obj.von_Neumann_Entropy();         % von Neumann Entropy for the total system of each covariance matrix
       
-      I = 0;                                     % Variable to store the mutual information
-      for j=1:obj.N_modes                        % Calculation of the mutual information
-        I = I + S(j);
-      end
-      I = I - S_tot;                             % Calculation of the mutual information
+      I = sum(S) - S_tot;                        % Calculation of the mutual information
+      
+%       I = 0;                                     % Variable to store the mutual information
+%       for j=1:obj.N_modes                        % Calculation of the mutual information
+%         I = I + S(j);
+%       end
+%       I = I - S_tot;                             % Calculation of the mutual information
     end
     
     function W = wigner(obj, X, P)
@@ -278,10 +282,23 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       % PARAMETERS
       %   X, P - 2D grid where the wigner function is to be evaluated
       
+      assert(obj.N_modes == 1, "At the moment, this program only calculates the wigner function for a single mode state")
+      
+      % This squeezes the plotting in one direction and expands the other
+      % No squeezing will apeear with this scaled axis !
+%       if nargin == 1
+%         x = obj.R(1) + 5*sqrt(obj.V(1,1))*linspace(-1, +1, 150);                 % Region to plot wigner function
+%         p = obj.R(2) + 5*sqrt(obj.V(2,2))*linspace(-1, +1, 150);
+%         [X, P] = meshgrid(x, p);
+%       end
+      
       N = obj.N_modes;                         % Number of modes
       W = zeros(length(X), length(P));         % Variable to store the calculated wigner function
       
-      one_over_purity = sqrt(det(obj.V));
+      % I am not sure why there need an absolute value on W_den !
+      % The theory does not need it, but numerical calculations were wrong only about the sign of the purity !
+      
+      one_over_purity = 1/obj.purity;
       
       for i=1:length(X)
         x = [X(i,:); P(i,:)];    
@@ -295,7 +312,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
           W(i, j) = W_num/W_den;               % Calculate the wigner function at every point on the grid
         end
       end
-      
+%       W = W.';
     end
     
     function F = fidelity(rho_1, rho_2)
@@ -331,11 +348,28 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       
     end
     
+    function nbar = occupation_number(obj)
+      % Occupation nuber for a single mode gaussian state
+      
+      Variances = diag(obj.V);              % From the current CM, take take the variances
+      
+      mean_x = obj.R(1:2:end);               % Odd  entries are the mean values of the position
+      mean_p = obj.R(2:2:end);               % Even entries are the mean values of the momentum
+      
+      Var_x = Variances(1:2:end);              % Odd  entries are position variances
+      Var_p = Variances(2:2:end);              % Even entries are momentum variances
+      
+      nbar = 0.25*( Var_x + mean_x.^2 + Var_p + mean_p.^2 ) - 0.5; % Calculate occupantion numbers at current time
+      
+    end
+    
+    % Entanglement
     function LN = logarithmic_negativity(obj, indexes)
       % Calculation of the logarithmic negativity for a bipartite system
       %
       % PARAMETERS:
-      %    i, j - indices for the bipartition to consider (if the system is already bipartite, these parameters are optional)
+      %    indexes - array with indices for the bipartition to consider 
+      %    If the system is already bipartite, thos parameter is optional
       %
       % MATHEMATICAL DESCRIPTION
       % The covariance matrix for a bipartite subsystem is of the form:
@@ -354,12 +388,12 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       % where \tilde{\nu}_{minus} = \sqrt( \sigma/2.0 - \sqrt( \sigma^2 - 4.0*\det(V) )/2.0 ) ,
       % and   \sigma = \det(A) + \det(B) - 2\det(C)
       
-      assert(length(indexes)==2, "Can only calculate the logarithmic negativity for a bipartition!");
-      
       temp = obj.N_modes;
       if temp == 2                               % If the full system is only comprised of two modes
         V0 = obj.V;                              % Take its full covariance matrix
-      elseif nargin > 1
+      elseif nargin > 1 && temp > 2
+        assert(length(indexes) == 2, "Can only calculate the logarithmic negativity for a bipartition!");
+        
         bipartition = obj.only_modes(indexes);   % Otherwise, get only the two mode specified by the user
         V0 = bipartition.V;                      % Take the full Covariance matrix of this subsystem
       end
@@ -379,6 +413,50 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
         
         LN = max([0, -log(ni)]);             % Calculate the logarithmic negativity at each time
       end
+    end
+    
+    % This is probabily wrong !
+    function Duan = duan_criteria(obj, indexes) % I have to confirm the mathematics here!
+      % Calculation of the LHS of the Duan criteria for a bipartite system
+      %
+      % PARAMETERS:
+      %    indexes - array with indices for the bipartition to consider
+      %    If the system is already bipartite, thos parameter is optional
+      %
+      % MATHEMATICAL DESCRIPTION
+      % Calculation of the LHS of the Duan criteria for a bipartite system
+      %
+      % Given the quadratures (\hat{X}_j, \hat{P}_j) of the j-th subsystem of a bipartite system:
+      %
+      % \hat{X}_j =  (\hat{a]_j^\dagger + \hat{a}_j)  and
+      % \hat{P}_j = i(\hat{a]_j^\dagger - \hat{a}_j)    ,
+      %
+      % the Duan criteria says that if a state is separable, then D > 1, where:
+      %
+      % D = 1/2 * { [\Delta(x_1 + x_2)]^2 + [\Delta(p_1 - p_2)]^2 } ,
+      %
+      % and ( \Delta(\hat{O}) )^2 = \langle \hat{O}^2 \rangle - \langle \hat{O} \rangle^2
+      % is the variance of an operator \hat{0}.
+      %
+      % The Duan criteria is evaluated by use of the covariance matrix V respective to the 
+      % bipartition: of modes indexes(1) and indexes(2) within the global covariance matrix of the state:
+      % 
+      % D =  1/2 * ( V(1,1) + V(2,2) + V(3,3) + V(4,4) + V(1,3) + V(3,1) - V(2,4) - V(4,2) )
+      
+      temp = obj.N_modes;
+      if temp == 2                               % If the full system is only comprised of two modes
+        V0 = obj.V;                              % Take its full covariance matrix
+      elseif nargin > 1 && temp > 2
+        assert(length(indexes) == 2, "Can only calculate the logarithmic negativity for a bipartition!");
+        
+        bipartition = obj.only_modes(indexes);   % Otherwise, get only the two mode specified by the user
+        V0 = bipartition.V;                      % Take the full Covariance matrix of this subsystem
+      end
+      
+    % Duan_0 = ( V0(1,1) + V0(2,2) + V0(3,3) + V0(4,4) )/4.0 + ( V0(1,3) - V0(2,4) )/2.0;
+    % Duan_0 = Duan_0/2.0;
+      
+      Duan = ( V0(1,1) + V0(2,2) + V0(3,3) + V0(4,4) + V0(1,3) + V0(3,1) - V0(2,4) - V0(4,2) )/4;
     end
     
     % Gaussian unitaries (only applicable to a single mode states)

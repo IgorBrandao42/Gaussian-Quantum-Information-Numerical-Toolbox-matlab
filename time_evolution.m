@@ -55,7 +55,7 @@ classdef time_evolution < handle                 % Class simulating an experimen
       %     end
     end
     
-    function evolved_state = run(obj, t_span)
+    function result = run(obj, t_span)
       % Run every calculation on the simulation for the time stamps as input.
       % If additional parameters are passed, then it will only calculate what was specified.
       %
@@ -69,7 +69,8 @@ classdef time_evolution < handle                 % Class simulating an experimen
       
       obj.build_states();                        % Combine the time evolutions calculated above into an array of gaussian states
       
-      evolved_state = obj.state;
+      result = obj.state;
+      
     % obj.langevin_semi_classical();             % Calculate the semi-classical quadratures for each timestamp
       
     % obj.steady_state();                        % Calculate the gaussian steady state of the system
@@ -152,9 +153,22 @@ classdef time_evolution < handle                 % Class simulating an experimen
       
       assert(~isempty(obj.R) && ~isempty(obj.V), "No mean quadratures or covariance matrices, can not build time evolved states!")
       
-      temp(1:obj.N_time) = gaussian_state;       % Initialize an "empty" array of gaussian states
+      temp = repmat(gaussian_state(), obj.N_time, 1);       % Initialize an "empty" array of gaussian states
+      %temp(1:obj.N_time) = gaussian_state;       % Initialize an "empty" array of gaussian states
+      RR = obj.R;
+      VV = obj.V;
+      
+%       temp2 = repmat(obj.initial_state, obj.N_time, 1);
+      
       for i=1:obj.N_time
-        temp(i) = gaussian_state(obj.R(:, i), obj.V{i});
+        temp(i) = gaussian_state(RR(:, i), VV{i});
+%         temp2(i).R = RR(:, i);
+%         temp2(i).V = VV{i};
+        
+%         assert(all(temp2(i).R == temp(i).R), "R!")
+%         assert(all(temp2(i).V == temp(i).V, 'all'), "V!")
+%         assert(all(temp2(i).Omega == temp(i).Omega, 'all'), "Omega!")
+%         assert(all(temp2(i).N_modes == temp(i).N_modes), "N_modes!")
       end
       obj.state = temp;
     end
@@ -386,6 +400,21 @@ end
 
 
 
+% function nbar = occupation_number(obj)
+% nbar = zeros(obj.Size_matrices/2, obj.N_time);
+% 
+% for i=1:length(obj.V)
+%   Variances = diag(obj.V{i});              % From the current CM, take take the variances
+%   
+%   mean_x = obj.R(1:2:end, i);               % Odd  entries are the mean values of the position
+%   mean_p = obj.R(2:2:end, i);               % Even entries are the mean values of the momentum
+%   
+%   Var_x = Variances(1:2:end);              % Odd  entries are position variances
+%   Var_p = Variances(2:2:end);              % Even entries are momentum variances
+%   
+%   nbar(:, i) = 0.25*( Var_x + mean_x.^2 + Var_p + mean_p.^2 ) - 0.5; % Calculate occupantion numbers at current time
+% end
+% end
 
 
 
