@@ -1,4 +1,4 @@
-function [AA, D, N] = CS_time_dependency(omega, g, gamma, T_environment, omega_cav, kappa, nu)
+function [AA, D, N] = CS_time_dependency(omega, g, gamma, T_environment, Delta, kappa, delta)
 % Calculates the parameters for the Langevin and Lyapunov equations dictating the dynamics
 % of an experiment with N nanoparticles interacting with an optical cavity field
 % See https://arxiv.org/abs/2102.08969
@@ -36,7 +36,7 @@ nbar_environment = 1./( exp(hbar*omega./(k_B*T_environment)) - 1 ); % Occupation
 
 
 %% Drift matrix
-A = [[-kappa/2 , omega_cav]; [-omega_cav   , -kappa/2]]; % Matrix defining the Langevin equation (without noises)
+A = [[-kappa/2 , Delta]; [-Delta   , -kappa/2]]; % Matrix defining the Langevin equation (without noises)
 for i=1:N_particles
   A_particle = [[0, omega(i)]; [-omega(i), -gamma(i)]];
   A = blkdiag(A, A_particle);
@@ -44,11 +44,7 @@ for i=1:N_particles
   A(2*(i+1),   1    ) = -2*g(i);
 end
 
-AA = @(t) func(t, A, g, nu);
-
-% AA = @(t) func(t, sym(A), g, nu);
-% syms t s xi real
-% B(t,s) = int(AA(xi), xi, s, t)
+AA = @(t) func_RWA(t, A, g, delta);
 
 %% Diffusion matrix
 D_diag = zeros([Size_matrices, 1]);              % Diagonal matrix with amplitude of noises' autocorrelators
@@ -63,7 +59,7 @@ N = zeros(Size_matrices, 1);                     % Mean of the noises acting on 
 end
 
 
-function AA = func(t, A, g, nu)
+function AA = func_RWA(t, A, g, delta)
 % AA = sym('AA', length(A), length(A));
 % for i=1:size(A,1)
 %   for j=1:size(A,2)
@@ -72,9 +68,10 @@ function AA = func(t, A, g, nu)
 % end
 AA = A;
 
-AA(2, 3) = -2*g(1)*cos(nu(1)*t);
-AA(2, 5) = -2*g(2)*cos(nu(2)*t);
+AA(1, 5) = -2*g(2)*sin(delta*t);
+AA(2, 5) = -2*g(2)*cos(delta*t);
 
-AA(4, 1) = -2*g(1)*cos(nu(1)*t);
-AA(6, 1) = -2*g(2)*cos(nu(2)*t);
+AA(end, 1) =  -2*g(2)*cos(delta*t);
+AA(end, 2) =  +2*g(2)*sin(delta*t);
+
 end
