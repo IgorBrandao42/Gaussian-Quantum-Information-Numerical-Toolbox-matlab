@@ -44,6 +44,8 @@ classdef time_evolution < handle                 % Class simulating an experimen
       
       obj.Size_matrices = length(obj.D);         % Size of system and ccupation number for the environment (heat bath)
       
+      % TEM QUE VERIFICAR QUE TAMANHOS DE A, D, N BATEM COM INITIAL STATE
+      
       if ~isa(obj.A,'function_handle')
         lambda = eig(obj.A);                     % Calculate the eigenvalues of the drift matrix
         obj.is_stable = ~any( real(lambda) > 0 );% Check if there is any with positive real part (unstability)
@@ -367,12 +369,12 @@ classdef time_evolution < handle                 % Class simulating an experimen
       
     end
     
-    function plot_CM(obj)
+    function plot_CM(obj, skip)
       % Visualize the time evolution of the covariance matrix 
       % This is a very bad way of understanding the dynamics,
       % but can be used to see if the code is actually performing any time evolution
       
-      for i=1:size(obj.V)
+      for i=1:skip:size(obj.V)
         heatmap(obj.V{i});
         drawnow
       end

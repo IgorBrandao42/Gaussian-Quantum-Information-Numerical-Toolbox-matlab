@@ -349,7 +349,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
     end
     
     function nbar = occupation_number(obj)
-      % Occupation nuber for a single mode gaussian state
+      % Occupation nuber for a single mode within the multipartite gaussian state
       
       Variances = diag(obj.V);              % From the current CM, take take the variances
       
