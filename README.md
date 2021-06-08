@@ -66,7 +66,7 @@ For the study of Gaussian Quantum Information, this code was based on and uses t
 This code is made available under the Creative Commons Attribution - Non Commercial 4.0 License. For full details see LICENSE.md.
 
 Cite this toolbox as: 
-> Igor Brandão, "Quantum Open Dynamics and Gaussian Information : Linear Optomechanics", Quantum-Gaussian-Information-Toolbox](Quantum-Gaussian-Information-Toolbox). Retrieved <*date-you-downloaded*>
+> Igor Brandão, "Quantum-Gaussian-Information-Toolbox", Quantum-Gaussian-Information-Toolbox](Quantum-Gaussian-Information-Toolbox). Retrieved <*date-you-downloaded*>
 
 
 ## Acknowledgment
