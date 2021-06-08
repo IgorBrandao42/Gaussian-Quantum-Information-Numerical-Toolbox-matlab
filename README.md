@@ -6,7 +6,7 @@ This is a MATLAB Toolbox for numerical simulation of quantum gaussian states and
 
 For the full description and notation used for gaussian quantum states, please refere to [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621). Particularly, for the quantum fidelity, see [[Phys. Rev. Lett. 115, 260501]](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.115.260501).
 
-The README below is not complete, but for the moment you can refer to the [[documentation pdf]](https://github.com/IgorBrandao42/Quantum-Gaussian-Information-Toolbox/blob/class_update/Documentation__Quantum_Gaussian_Information_Toolbox.pdf)
+The README below is not complete, but for the moment you can refer to the [documentation pdf](https://github.com/IgorBrandao42/Quantum-Gaussian-Information-Toolbox/blob/class_update/Documentation__Quantum_Gaussian_Information_Toolbox.pdf)!
 
 ## Installation
 
