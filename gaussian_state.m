@@ -259,7 +259,7 @@ classdef gaussian_state < handle         % Class definning a nanoparticle
       S = zeros([obj.N_modes, 1]);               % Variable to store the entropy of each mode
       
       for j=1:obj.N_modes                        % Loop through each mode
-        single_mode = obj.partial_trace(j);      % Get the covariance matrix for only the i-th mode
+        single_mode = obj.only_modes(j);      % Get the covariance matrix for only the i-th mode
         S(j) = single_mode.von_Neumann_Entropy();% von Neumann Entropy for i-th mode of each covariance matrix
       end
       
