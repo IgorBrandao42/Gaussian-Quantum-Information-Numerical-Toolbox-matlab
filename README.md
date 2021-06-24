@@ -55,7 +55,7 @@ states = simulation.run(t);                    % Simulate and retrieve time evol
 In the file **Example_simulation.m** there is a basic example of the capabilities of this Toolbox.
 
 ## Author
-[Igor Brandão](mailto:igorbrandao@aluno.puc-rio.br) - Master's student in [Thiago Guerreiro](mailto:barbosa@puc-rio.br)'s Lab at Pontifical Catholic University of Rio de Janeiro, Brazil
+[Igor Brandão](mailto:igorbrandao@aluno.puc-rio.br) - M.Sc. in Physics from Pontifical Catholic University of Rio de Janeiro, Brazil. Advisor: [Thiago Guerreiro](mailto:barbosa@puc-rio.br)
 
 ## Mathematical Formalism
 For the study of Gaussian Quantum Information, this code was based on and uses the same formalism as:
@@ -66,7 +66,7 @@ For the study of Gaussian Quantum Information, this code was based on and uses t
 This code is made available under the Creative Commons Attribution - Non Commercial 4.0 License. For full details see LICENSE.md.
 
 Cite this toolbox as: 
-> Igor Brandão, "Quantum-Gaussian-Information-Toolbox", https://github.com/IgorBrandao42/Quantum-Gaussian-Information-Toolbox. Retrieved <*date-you-downloaded*>
+> Igor Brandão, "Quantum Gaussian Information Numerical Toolbox", https://github.com/IgorBrandao42/Quantum-Gaussian-Information-Numerical-Toolbox. Retrieved <*date-you-downloaded*>
 
 
 ## Acknowledgment
