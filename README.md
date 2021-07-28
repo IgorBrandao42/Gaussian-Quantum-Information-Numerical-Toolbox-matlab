@@ -1,6 +1,6 @@
 [![View Gaussian Quantum State Toolbox on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/87614-quantum-open-dynamics-and-gaussian-information-toolbox)
 
-# Quantum Gaussian Information Numerical Toolbox
+# Gaussian Quantum Information Numerical Toolbox (MATLAB)
 
 This is a MATLAB Toolbox for numerical simulation of quantum gaussian states and their dynamics dictated by a set of linear Langevin and Lyapunov equations
 
