@@ -6,7 +6,7 @@ This is a MATLAB Toolbox for numerical simulation of quantum gaussian states and
 
 For the full description and notation used for gaussian quantum states, please refere to [[Rev. Mod. Phys. 84, 621]](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.84.621). Particularly, for the quantum fidelity, see [[Phys. Rev. Lett. 115, 260501]](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.115.260501).
 
-The README below is not complete, but for the moment you can refer to the [documentation pdf](https://github.com/IgorBrandao42/Quantum-Gaussian-Information-Toolbox/blob/main/Documentation__Quantum_Gaussian_Information_Toolbox.pdf)!
+The README below is not complete, but for the moment you can refer to the [documentation pdf](https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Numerical-Toolbox-matlab/blob/main/Documentation%20-%20Quantum_Gaussian_Information_Toolbox%20-%20matlab.pdf)!
 
 ## Installation
 
@@ -66,11 +66,11 @@ For the study of Gaussian Quantum Information, this code was based on and uses t
 This code is made available under the Creative Commons Attribution - Non Commercial 4.0 License. For full details see LICENSE.md.
 
 Cite this toolbox as: 
-> Igor Brandão, "Quantum Gaussian Information Numerical Toolbox", https://github.com/IgorBrandao42/Quantum-Gaussian-Information-Numerical-Toolbox. Retrieved <*date-you-downloaded*>
+> Igor Brandão, "Quantum Gaussian Information Numerical Toolbox", https://github.com/IgorBrandao42/Gaussian-Quantum-Information-Numerical-Toolbox-matlab. Retrieved <*date-you-downloaded*>
 
 
 ## Acknowledgment
-The author thanks Daniel Ribas Tandeitnik and Professor Thiago Guerreiro for the discussions. The author is thankful for support received from FAPERJ Scholarship No. E-26/200.270/2020
+The author thanks Daniel Ribas Tandeitnik and Professor Thiago Guerreiro for the discussions. The author is thankful for support received from FAPERJ Scholarship No. E-26/200.270/2020 and CNPq Scholarship No. 140279/2021-0.
 
 
 
