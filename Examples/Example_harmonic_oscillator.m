@@ -27,7 +27,7 @@ t = linspace(0, 5*2*pi/omega, 1e4);                % Timestamps for simulation
 
 
 %% Simulation
-simulation = time_evolution(A, D, N, initial);   % Simulate!
+simulation = gaussian_dynamics(A, D, N, initial);   % Simulate!
 states = simulation.run(t);
 
 
