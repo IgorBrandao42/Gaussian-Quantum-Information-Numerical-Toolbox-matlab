@@ -19,7 +19,7 @@ classdef gaussian_dynamics < handle              % Class simulating the time evo
   end
   
   methods
-    function obj = time_evolution(A_0, D_0, N_0, initial_state_0)
+    function obj = gaussian_dynamics(A_0, D_0, N_0, initial_state_0)
       % Class constructor for simulating the time evolution of the global system
       % Open/closed quantum dynamics dictated by Langevin and Lyapunov equations
       %
