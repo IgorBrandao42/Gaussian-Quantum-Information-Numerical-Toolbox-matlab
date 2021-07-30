@@ -20,7 +20,7 @@ t = linspace(0, T, 1e4);                      % Timestamps for simulation (5 pro
 
 
 %% Simulation
-simulation = time_evolution(A, D, N, initial);   % Create simulation instance
+simulation = gaussian_dynamics(A, D, N, initial);   % Create simulation instance
 states = simulation.run(t);                      % Simulate and retrieve time evolved gaussian states
 
 
