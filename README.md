@@ -111,16 +111,14 @@ states = simulation.run(t);                    # Simulate and retrieve time evol
 The method 'run' returns the time evolved state (array of gaussian_state instances) at the specified times (input argument)
 
 
-## Dependencies
-
-This toolbox makes use of the numpy and scipy packages.
-
 ## Installation
 
 Clone this repository or download this toolbox into your project folder and import the toolbox:
 
 
 # Running Example
+Add "Example" folder to yout MATLAB search path.
+
 In the file **Example_gaussian_state.m** there is a basic example of the capabilities of this Toolbox to simulate a multimode gaussian state and retrieve information from it.
 
 In the file **Example_harmonic_oscillator.m** there is a basic example of the capabilities of this Toolbox to simulate the time evolution of a gaussian state following closed/open quantum dynamics through a set of quantum Langevin and Lyapunov equations.
