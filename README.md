@@ -21,13 +21,13 @@ coherent_state = gaussian_state("coherent", 1 + 2j); # Coherent state
 squeezed_state = gaussian_state("squeezed", 2);      # Squeezed state
 thermal_state  = gaussian_state("thermal", 0.1);     # Thermal  state
 
-R = [1, 2, 3, 4]                           # Mean quadrature vector
-V = [[1, 0, 0, 0];                         # Covariance matrix
+R = [1, 2, 3, 4]                                     # Mean quadrature vector
+V = [[1, 0, 0, 0];                                   # Covariance matrix
      [0, 1, 0, 0];
      [0, 0, 1, 0];
      [0, 0, 0, 1]];
               
-bipartite_state = gaussian_state(R, V);				 # Generic multimode gaussian state
+bipartite_state = gaussian_state(R, V);		     # Generic multimode gaussian state
 ```
 
 More so, it is possible to combine any number of gaussian states into their direct product and retrieve only partitions of the composite gaussian state:
@@ -48,10 +48,10 @@ It is possible to apply a number of gaussian unitaries to a given single-mode or
 	 - Beam-splitter operator
 	 - Two-mode squeezing operator
 
-```matlab
-a = squeezed.displace(3 + 4j); # Apply displacement operator
+```matlab  
+a = squeezed.displace(3 + 4j);         # Apply displacement operator
 
-b = thermal.squeeze(2);        # Apply squeezing operator
+b = thermal.squeeze(2);                # Apply squeezing operator
 
 c = a.rotate(pi/2);		       # Apply rotation operator
 
