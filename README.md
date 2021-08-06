@@ -81,12 +81,12 @@ The toolbox is also equipped with a second class 'gaussian_dynamics' to simulate
 
 The input arguments to this class constructor are:
 
- - A --- Drift matrix for the Langevin equation (numpy array or function)
- - D --- Diffusion matrix for the Lyapunov equation (numpy array)
- - N --- Vector with the mean value of the input noises (numpy array)
+ - A --- Drift matrix for the Langevin equation (array or function handle)
+ - D --- Diffusion matrix for the Lyapunov equation
+ - N --- Vector with the mean value of the input noises
  - initial_state --- Initial state for the time evolution (gaussian_state class instace)
 
-The toolbox is able to account for time dependent drift matrices given by gufunc or lambda functions!
+The toolbox is able to account for time dependent drift matrices given by functions handles!
 
 See below a simple example:
 ```matlab
