@@ -577,7 +577,7 @@ classdef gaussian_state < handle         % Class definning a multimode gaussian 
       % REFERENCE:
       %    Jinglei Zhang's PhD Thesis - https://phys.au.dk/fileadmin/user_upload/Phd_thesis/thesis.pdf
       
-      if isa(varargin{1}, 'gaussian_state')                     % If the inpu argument is a gaussian_state
+      if isa(varargin{1}, 'gaussian_state')                     % If the input argument is a gaussian_state
         R_m = varargin{1}.R;    
         V_m = varargin{1}.V;
       else                                                      % If the input arguments are the conditional state's mean quadrature vector anc covariance matrix
@@ -600,16 +600,18 @@ classdef gaussian_state < handle         % Class definning a multimode gaussian 
     end
     
     function rho_A = measurement_homodyne(obj, varargin)
-      % Find the resulting state after an homodyne measurement is performed on the last modes
-      % which afterwards is characterized by the first moments vector r_m and covariance matrix V_m
+      % After a homodyne gaussian measurement is performed on the last m modes of a (n+m)-mode gaussian state
+      % this method calculates the conditional state the remaining n modes evolve into
       % 
-      % At the moment, this method can only perform the measurement on the first mode of the global state,
+      % The user must provide the gaussian_state of the measured m-mode state or its mean value
+      % 
+      % At the moment, this method can only perform the measurement on the last modes of the global state,
       % if you know how to perform this task on a generic mode, contact me so I can implement it! :)
       %
-      % ARGUMENTs:
-      %    R_m      - first moments of the conditional state after the measurement (measurement outcome)
+      % ARGUMENTS:
+      %    R_m      - first moments     of the conditional state after the measurement
       %    or
-      %    rho_B    - conditional gaussian state after the measurement with the measured first moments
+      %    rho_B    - conditional gaussian state after the measurement on the last m modes (rho_B.N_modes = m)
       % 
       % REFERENCE:
       %    Jinglei Zhang's PhD Thesis - https://phys.au.dk/fileadmin/user_upload/Phd_thesis/thesis.pdf
@@ -622,8 +624,8 @@ classdef gaussian_state < handle         % Class definning a multimode gaussian 
       
       idx_modes = (obj.N_modes-length(R_m)/2+1):obj.N_modes;    % Index for the modes that are to be measured (currently only the last modes are supported)
       
-      rho_B = obj.only_modes(idx_modes);                         % Get the mode measured mode in the global state previous to the measurement
-      rho_A = obj.partial_trace(idx_modes);                      % Get the other modes in the global state        previous to the measurement
+      rho_B = obj.only_modes(idx_modes);                        % Get the mode measured mode in the global state previous to the measurement
+      rho_A = obj.partial_trace(idx_modes);                     % Get the other modes in the global state        previous to the measurement
       
       n = 2*rho_A.N_modes;                                      % Twice the number of modes in state A
       m = 2*rho_B.N_modes;                                      % Twice the number of modes in state B
@@ -632,26 +634,33 @@ classdef gaussian_state < handle         % Class definning a multimode gaussian 
       
       MP_inverse = diag([1/rho_B.V(1,1), 0]);                   % Moore-Penrose pseudo-inverse of an auxiliar matrix (see reference)
       
-      % Update the other modes conditioned on the measurement results
-      rho_A.R = rho_A.R - V_AB*( MP_inverse*(rho_B.R - R_m) );
+      rho_A.R = rho_A.R - V_AB*( MP_inverse*(rho_B.R - R_m) );  % Update the other modes conditioned on the measurement results
       rho_A.V = rho_A.V - V_AB*( MP_inverse*(V_AB.') );
     end
     
-    function rho_A = measurement_heterodyne(obj, alpha)
-      % Find the resulting state after an heterodyne measurement is performed on the last mode
-      % which afterwards is characterized by a coherent state with complex amplitude alpha
-      % 
-      % At the moment, this method can only perform the measurement on the first mode of the global state,
+    function rho_A = measurement_heterodyne(obj, varargin)
+      % After a heterodyne measurement is performed on the last m modes of a (n+m)-mode gaussian state
+      % this method calculates the conditional state the remaining n modes evolve into
+      %   
+      % The user must provide the gaussian_state of the measured m-mode state or the measured complex amplitude of the resulting coherent state
+      %   
+      % At the moment, this method can only perform the measurement on the last modes of the global state,
       % if you know how to perform this task on a generic mode, contact me so I can implement it! :)
-      % ARGUMENTs:
-      %    idx_mode - index for the mode which was measured
-      %    r_m      - first moments     of the conditional state after the measurement
-      %    V_m      - covariance matrix of the conditional state after the measurement
-      % 
+      %  
+      % ARGUMENTS:
+      %    alpha    - complex amplitude of the coherent state after the measurement
+      %    or
+      %    rho_B    - conditional gaussian state after the measurement on the last m modes (rho_B.N_modes = m)
+      %   
       % REFERENCE:
       %    Jinglei Zhang's PhD Thesis - https://phys.au.dk/fileadmin/user_upload/Phd_thesis/thesis.pdf
       
-      rho_B = gaussian_state("coherent", alpha);
+      if isa(varargin{1}, 'gaussian_state')                     % If the input argument is a gaussian state
+        rho_B = varargin{1};
+      else                                                      % If the input argument is the measured complex amplitude of the resulting coherent state
+        rho_B = gaussian_state("coherent", varargin{1});
+      end
+      
       rho_A = obj.measurement_general(rho_B);
     end
     
