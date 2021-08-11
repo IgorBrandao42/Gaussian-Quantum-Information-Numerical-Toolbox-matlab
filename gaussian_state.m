@@ -166,11 +166,11 @@ classdef gaussian_state < handle         % Class definning a multimode gaussian 
       % CALCULATES:
       %    rho - gaussian_state with all of the specified modes
       
-      N_A = length(indexes); % Twice the number of modes in resulting state
+      N_A = length(indexes);                    % Number of modes in resulting state
       assert(N_A>0 && N_A <= obj.N_modes, "Partial trace over more states than exists in gaussian state")
       
-      R0 = zeros(N_A, 1);
-      V0 = zeros(N_A, N_A);
+      R0 = zeros(2*N_A, 1);
+      V0 = zeros(2*N_A, 2*N_A);
       
       for i=1:length(indexes)
         m = indexes(i);
@@ -558,6 +558,102 @@ classdef gaussian_state < handle         % Class definning a multimode gaussian 
       obj.V = S2*obj.V*(S2.');
     end
     
+    %% Gaussian measurements
+    function rho_A = measurement_general(obj, varargin)
+      % After a general gaussian measurement is performed on the last m modes of a (n+m)-mode gaussian state
+      % this method calculates the conditional state the remaining n modes evolve into
+      % 
+      % The user must provide the gaussian_state of the measured m-mode state or its mean value and covariance matrix
+      % 
+      % At the moment, this method can only perform the measurement on the last modes of the global state,
+      % if you know how to perform this task on a generic mode, contact me so I can implement it! :)
+      %
+      % ARGUMENTS:
+      %    R_m      - first moments     of the conditional state after the measurement
+      %    V_m      - covariance matrix of the conditional state after the measurement
+      %    or
+      %    rho_B    - conditional gaussian state after the measurement on the last m modes (rho_B.N_modes = m)
+      % 
+      % REFERENCE:
+      %    Jinglei Zhang's PhD Thesis - https://phys.au.dk/fileadmin/user_upload/Phd_thesis/thesis.pdf
+      
+      if isa(varargin{1}, 'gaussian_state')                     % If the inpu argument is a gaussian_state
+        R_m = varargin{1}.R;    
+        V_m = varargin{1}.V;
+      else                                                      % If the input arguments are the conditional state's mean quadrature vector anc covariance matrix
+        R_m = varargin{1};
+        V_m = varargin{2};
+      end
+      
+      idx_modes = (obj.N_modes-length(R_m)/2+1):obj.N_modes;    % Index for the modes that are to be measured (currently only the last modes are supported)
+      
+      rho_B = obj.only_modes(idx_modes);                        % Get the mode measured mode in the global state previous to the measurement
+      rho_A = obj.partial_trace(idx_modes);                     % Get the other modes in the global state        previous to the measurement
+      
+      n = 2*rho_A.N_modes;                                      % Twice the number of modes in state A
+      m = 2*rho_B.N_modes;                                      % Twice the number of modes in state B
+        
+      V_AB = obj.V(1:n, n+1:n+m);                               % Get the matrix dictating the correlations      previous to the measurement                           
+      
+      rho_A.R = rho_A.R - V_AB*( (rho_B.V + V_m)\(rho_B.R - R_m) ); % Update the other modes conditioned on the measurement results
+      rho_A.V = rho_A.V - V_AB*( (rho_B.V + V_m)\(V_AB.') );
+    end
+    
+    function rho_A = measurement_homodyne(obj, varargin)
+      % Find the resulting state after an homodyne measurement is performed on the last modes
+      % which afterwards is characterized by the first moments vector r_m and covariance matrix V_m
+      % 
+      % At the moment, this method can only perform the measurement on the first mode of the global state,
+      % if you know how to perform this task on a generic mode, contact me so I can implement it! :)
+      %
+      % ARGUMENTs:
+      %    R_m      - first moments of the conditional state after the measurement (measurement outcome)
+      %    or
+      %    rho_B    - conditional gaussian state after the measurement with the measured first moments
+      % 
+      % REFERENCE:
+      %    Jinglei Zhang's PhD Thesis - https://phys.au.dk/fileadmin/user_upload/Phd_thesis/thesis.pdf
+      
+      if isa(varargin{1}, 'gaussian_state')                     % If the input argument is a gaussian state
+        R_m = varargin{1}.R;
+      else                                                      % If the input argument is only the mean quadratures values
+        R_m = varargin{1};
+      end
+      
+      idx_modes = (obj.N_modes-length(R_m)/2+1):obj.N_modes;    % Index for the modes that are to be measured (currently only the last modes are supported)
+      
+      rho_B = obj.only_modes(idx_modes);                         % Get the mode measured mode in the global state previous to the measurement
+      rho_A = obj.partial_trace(idx_modes);                      % Get the other modes in the global state        previous to the measurement
+      
+      n = 2*rho_A.N_modes;                                      % Twice the number of modes in state A
+      m = 2*rho_B.N_modes;                                      % Twice the number of modes in state B
+        
+      V_AB = obj.V(1:n, n+1:n+m);                               % Get the matrix dictating the correlations      previous to the measurement                           
+      
+      MP_inverse = diag([1/rho_B.V(1,1), 0]);                   % Moore-Penrose pseudo-inverse of an auxiliar matrix (see reference)
+      
+      % Update the other modes conditioned on the measurement results
+      rho_A.R = rho_A.R - V_AB*( MP_inverse*(rho_B.R - R_m) );
+      rho_A.V = rho_A.V - V_AB*( MP_inverse*(V_AB.') );
+    end
+    
+    function rho_A = measurement_heterodyne(obj, alpha)
+      % Find the resulting state after an heterodyne measurement is performed on the last mode
+      % which afterwards is characterized by a coherent state with complex amplitude alpha
+      % 
+      % At the moment, this method can only perform the measurement on the first mode of the global state,
+      % if you know how to perform this task on a generic mode, contact me so I can implement it! :)
+      % ARGUMENTs:
+      %    idx_mode - index for the mode which was measured
+      %    r_m      - first moments     of the conditional state after the measurement
+      %    V_m      - covariance matrix of the conditional state after the measurement
+      % 
+      % REFERENCE:
+      %    Jinglei Zhang's PhD Thesis - https://phys.au.dk/fileadmin/user_upload/Phd_thesis/thesis.pdf
+      
+      rho_B = gaussian_state("coherent", alpha);
+      rho_A = obj.measurement_general(rho_B);
+    end
     
   end % methods
 end % classdef
