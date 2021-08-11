@@ -113,11 +113,11 @@ The method 'run' returns the time evolved state (array of gaussian_state instanc
 
 ## Installation
 
-Clone this repository or download this toolbox into your project folder and import the toolbox:
+Clone this repository or download this toolbox into your project folder.
 
 
 # Running Example
-Add "Example" folder to yout MATLAB search path.
+Add "Example" folder to your MATLAB search path.
 
 In the file **Example_gaussian_state.m** there is a basic example of the capabilities of this Toolbox to simulate a multimode gaussian state and retrieve information from it.
 
